@@ -11,6 +11,7 @@ services:
     working_dir: /var/www/admin
     volumes:
       - ./admin-web:/var/www/admin
+      - ./php/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
     networks:
       - masjid_net
     depends_on:
@@ -26,6 +27,7 @@ services:
     working_dir: /var/www/api
     volumes:
       - ./api-service:/var/www/api
+      - ./php/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
     networks:
       - masjid_net
     depends_on:
