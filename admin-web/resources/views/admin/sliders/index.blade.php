@@ -28,7 +28,7 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label text-white-50">Pilih Gambar</label>
+                            <label class="form-label text-white-50">Pilih Gambar/Video</label>
                             <div class="input-group">
                                 <input type="file" name="image" class="form-control" id="inputGroupFile02" required>
                                 <label class="input-group-text" for="inputGroupFile02"><i class="bi bi-image"></i></label>

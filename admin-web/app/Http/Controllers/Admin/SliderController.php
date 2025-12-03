@@ -18,23 +18,31 @@ class SliderController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'nullable|string',
-            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048', // Max 2MB
+            'title' => 'nullable|string|max:100',
+            // Update validasi: Boleh Gambar (jpeg,png,jpg) ATAU Video (mp4)
+            // Max ukuran kita naikkan misal jadi 20MB (20480 KB) untuk video pendek
+            'image' => 'required|file|mimes:jpeg,png,jpg,mp4|max:20480', 
         ]);
-
-        // Proses Upload
+    
         if ($request->hasFile('image')) {
-            // Simpan ke folder 'public/sliders'
-            $path = $request->file('image')->store('sliders', 'public');
-
+            $file = $request->file('image');
+            $path = $file->store('sliders', 'public');
+    
+            // DETEKSI TIPE FILE OTOMATIS
+            // Ambil MIME type (contoh: 'image/jpeg' atau 'video/mp4')
+            $mime = $file->getMimeType();
+            // Ambil kata depannya saja ('image' atau 'video')
+            $type = explode('/', $mime)[0]; 
+    
             Slider::create([
                 'title' => $request->title,
-                'image_path' => $path, // Yang disimpan hanya path-nya, misal: sliders/gambar1.jpg
+                'image_path' => $path,
+                'type' => $type, // Simpan tipenya ('image' atau 'video')
                 'is_active' => true
             ]);
         }
-
-        return redirect()->back()->with('success', 'Gambar berhasil diupload!');
+    
+        return redirect()->back()->with('success', 'Media berhasil diupload!');
     }
 
     public function destroy($id)
