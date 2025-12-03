@@ -32,6 +32,7 @@ class PrayerController extends Controller
             $json = file_get_contents($url);
             $data = json_decode($json, true);
             $timings = $data['data']['timings'];
+            $hijri = $data['data']['date']['hijri'];
 
             // Filter hanya 5 waktu sholat + syuruq (terbit)
             return response()->json([
@@ -41,7 +42,8 @@ class PrayerController extends Controller
                 'Ashar' => $timings['Asr'],
                 'Maghrib' => $timings['Maghrib'],
                 'Isya' => $timings['Isha'],
-                'date_readable' => $data['data']['date']['readable'] // Tanggal Masehi
+                'date_readable' => $data['data']['date']['readable'], // Tanggal Masehi
+                'date_hijri' => $hijri['day'] . ' ' . $hijri['month']['en'] . ' ' . $hijri['year'] . ' H'
             ]);
 
         } catch (\Exception $e) {

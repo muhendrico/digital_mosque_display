@@ -16,7 +16,7 @@
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="card-title mb-0"><i class="bi bi-cloud-upload me-2"></i> Upload Gambar Baru</h5>
+                    <h5 class="card-title mb-0"><i class="bi bi-cloud-upload me-2"></i> Upload Media Baru</h5>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('admin.sliders.store') }}" method="POST" enctype="multipart/form-data">
@@ -28,13 +28,17 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label text-white-50">Pilih Gambar/Video</label>
+                            <label class="form-label text-white-50">Pilih Gambar / Video</label>
                             <div class="input-group">
                                 <input type="file" name="image" class="form-control" id="inputGroupFile02" required>
-                                <label class="input-group-text" for="inputGroupFile02"><i class="bi bi-image"></i></label>
+                                <label class="input-group-text" for="inputGroupFile02"><i class="bi bi-folder2-open"></i></label>
                             </div>
                             <div class="form-text text-white-50 small mt-2">
-                                <i class="bi bi-info-circle"></i> Format: JPG/PNG. Rasio 16:9. Max 2MB.
+                                <ul class="ps-3 mb-0">
+                                    <li><strong>Gambar:</strong> JPG/PNG (Max 2MB)</li>
+                                    <li><strong>Video:</strong> MP4 (Max 20MB)</li>
+                                    <li>Rasio disarankan 16:9</li>
+                                </ul>
                             </div>
                         </div>
 
@@ -52,7 +56,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0"><i class="bi bi-list-check me-2"></i> Daftar Slider Aktif</h5>
-                    <span class="badge bg-info text-dark">{{ $sliders->count() }} Gambar</span>
+                    <span class="badge bg-info text-dark">{{ $sliders->count() }} Media</span>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -60,8 +64,8 @@
                             <thead class="bg-dark text-white">
                                 <tr>
                                     <th width="5%" class="text-center">#</th>
-                                    <th width="20%">Preview</th>
-                                    <th>Judul</th>
+                                    <th width="25%">Preview</th>
+                                    <th>Judul & Tipe</th>
                                     <th width="15%" class="text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -70,13 +74,35 @@
                                 <tr>
                                     <td class="text-center">{{ $loop->iteration }}</td>
                                     <td>
-                                        <div class="ratio ratio-16x9 rounded overflow-hidden border border-secondary">
-                                            <img src="{{ asset('storage/' . $slider->image_path) }}" alt="Slider" style="object-fit: cover;">
+                                        <div class="ratio ratio-16x9 rounded overflow-hidden border border-secondary position-relative">
+                                            @if($slider->type == 'video')
+                                                <video 
+                                                    src="{{ asset('storage/' . $slider->image_path) }}" 
+                                                    style="object-fit: cover; width: 100%; height: 100%;" 
+                                                    muted loop 
+                                                    onmouseover="this.play()" 
+                                                    onmouseout="this.pause()"
+                                                ></video>
+                                                <div class="position-absolute top-0 end-0 m-1">
+                                                    <span class="badge bg-danger bg-opacity-75"><i class="bi bi-play-fill"></i> Video</span>
+                                                </div>
+                                            @else
+                                                <img src="{{ asset('storage/' . $slider->image_path) }}" alt="Slider" style="object-fit: cover;">
+                                            @endif
                                         </div>
                                     </td>
-                                    <td class="fw-bold">{{ $slider->title ?? '-' }}</td>
+                                    <td>
+                                        <div class="fw-bold">{{ $slider->title ?? '(Tanpa Judul)' }}</div>
+                                        <div class="small text-white-50 text-uppercase mt-1" style="font-size: 0.75rem;">
+                                            @if($slider->type == 'video')
+                                                <span class="text-warning"><i class="bi bi-camera-video"></i> Video MP4</span>
+                                            @else
+                                                <span class="text-info"><i class="bi bi-image"></i> Gambar</span>
+                                            @endif
+                                        </div>
+                                    </td>
                                     <td class="text-center">
-                                        <form action="{{ route('admin.sliders.delete', $slider->id) }}" method="POST" onsubmit="return confirm('Yakin hapus gambar ini?');">
+                                        <form action="{{ route('admin.sliders.delete', $slider->id) }}" method="POST" onsubmit="return confirm('Yakin hapus media ini?');">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
                                                 <i class="bi bi-trash-fill"></i>
@@ -87,7 +113,7 @@
                                 @empty
                                 <tr>
                                     <td colspan="4" class="text-center py-4 text-white-50">
-                                        <i class="bi bi-images display-6 d-block mb-2 opacity-50"></i>
+                                        <i class="bi bi-collection-play display-6 d-block mb-2 opacity-50"></i>
                                         Belum ada slider yang diupload.
                                     </td>
                                 </tr>
@@ -123,7 +149,6 @@
         background: rgba(0,0,0,0.2);
         padding: 15px 20px;
     }
-    /* Style Tabel Transparan */
     .table { color: #fff; margin-bottom: 0; }
     .table thead th { background-color: rgba(0,0,0,0.4); border-bottom: 2px solid rgba(255,255,255,0.1); }
     .table td { border-bottom: 1px solid rgba(255,255,255,0.1); }

@@ -86,7 +86,7 @@
             <p id="masjid-address">Jalan...</p>
         </div>
         <div class="date-info">
-            <div class="date-hijri">14 Shafar 1445 H</div>
+            <div class="date-hijri" id="date-hijri">Loading...</div>
             <div class="date-masehi" id="date-masehi">Senin, 1 Jan 2024</div>
         </div>
     </div>
@@ -159,6 +159,9 @@
 
         // --- 3. PRAYER UI UPDATER ---
         function updatePrayerUI(data) {
+            if(data.date_hijri) {
+                document.getElementById('date-hijri').innerText = data.date_hijri;
+            }
             document.getElementById('time-terbit').innerText = data.Terbit || '--:--';
             document.getElementById('time-subuh').innerText = data.Subuh;
             document.getElementById('time-dzuhur').innerText = data.Dzuhur;
