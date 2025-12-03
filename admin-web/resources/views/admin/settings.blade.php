@@ -105,21 +105,113 @@
                         <h5 class="card-title mb-0"><i class="bi bi-megaphone me-2"></i> Teks Berjalan (Running Text)</h5>
                     </div>
                     <div class="card-body">
-                        <textarea name="running_text" class="form-control" rows="4" 
-                                  placeholder="Contoh: Mohon luruskan dan rapatkan shaf...">{{ $settings['running_text'] ?? '' }}</textarea>
-                        <div class="mt-2 text-end">
+                        
+                        <div class="input-group mb-3">
+                            <input type="text" id="newInfoInput" class="form-control" placeholder="Tulis info baru di sini (tekan Enter)...">
+                            <button class="btn btn-info fw-bold" type="button" onclick="addRunningText()">
+                                <i class="bi bi-plus-lg"></i> Tambah
+                            </button>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white-50 small">Daftar Info yang Ditampilkan:</label>
+                            <ul class="list-group" id="infoListContainer">
+                                </ul>
+                            <div id="emptyMsg" class="text-white-50 small fst-italic mt-2" style="display: none;">Belum ada info. Silakan tambah di atas.</div>
+                        </div>
+
+                        <input type="hidden" name="running_text" id="realRunningText" value="{{ $settings['running_text'] ?? '' }}">
+
+                        <div class="mt-4 text-end">
                              <button type="submit" class="btn btn-primary px-4 py-2 fw-bold">
                                 <i class="bi bi-save me-2"></i> Simpan Perubahan
                             </button>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </form>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        renderList(); // Render data awal dari database saat load
+    });
+
+    // Ambil elemen
+    const inputField = document.getElementById('newInfoInput');
+    const hiddenField = document.getElementById('realRunningText');
+    const listContainer = document.getElementById('infoListContainer');
+    const emptyMsg = document.getElementById('emptyMsg');
+
+    // Simbol pemisah (bisa diganti sesuai selera, misal " • " atau " | ")
+    const SEPARATOR = " | "; 
+
+    // 1. Fungsi Render List dari Hidden Input
+    function renderList() {
+        listContainer.innerHTML = '';
+        const currentText = hiddenField.value;
+        
+        if(!currentText.trim()) {
+            emptyMsg.style.display = 'block';
+            return;
+        } else {
+            emptyMsg.style.display = 'none';
+        }
+
+        // Pecah string database menjadi array berdasarkan separator
+        const items = currentText.split(SEPARATOR);
+
+        items.forEach((text, index) => {
+            if(text.trim() === '') return;
+
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center bg-transparent text-white border-secondary mb-1 rounded';
+            li.style.background = 'rgba(255,255,255,0.05)';
+            
+            li.innerHTML = `
+                <span><i class="bi bi-dot me-2 text-info"></i> ${text}</span>
+                <button type="button" class="btn btn-sm btn-outline-danger border-0" onclick="removeItem(${index})">
+                    <i class="bi bi-trash"></i>
+                </button>
+            `;
+            listContainer.appendChild(li);
+        });
+    }
+
+    // 2. Fungsi Tambah Item
+    function addRunningText() {
+        const newVal = inputField.value.trim();
+        if(!newVal) return;
+
+        let currentArr = hiddenField.value ? hiddenField.value.split(SEPARATOR) : [];
+        currentArr.push(newVal);
+
+        // Gabungkan kembali jadi string dan simpan ke hidden input
+        hiddenField.value = currentArr.join(SEPARATOR);
+        
+        inputField.value = ''; // Reset input
+        renderList(); // Refresh tampilan
+    }
+
+    // 3. Fungsi Hapus Item
+    function removeItem(index) {
+        let currentArr = hiddenField.value.split(SEPARATOR);
+        currentArr.splice(index, 1); // Hapus array index tersebut
+
+        hiddenField.value = currentArr.join(SEPARATOR);
+        renderList();
+    }
+
+    // 4. Shortcut Enter Key di Input
+    inputField.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Jangan submit form utama
+            addRunningText();
+        }
+    });
+</script>
 <style>
     /* Membuat label lebih terbaca tapi tidak mencolok */
     .text-white-50 { color: rgba(255, 255, 255, 0.7) !important; font-size: 0.9rem; font-weight: 500; }
