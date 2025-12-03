@@ -58,6 +58,57 @@
         #overlay-iqomah, #overlay-sholat { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
         #overlay-iqomah { background: rgba(0,0,0,0.95); color: #d4af37; }
         #overlay-sholat { background: #000; color: #333; }
+
+        /* --- DESAIN BARU OVERLAY IQOMAH --- */
+        #overlay-iqomah {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 9999; 
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%); /* Gradasi Hitam Elegan */
+            justify-content: center; align-items: center; flex-direction: column;
+            color: #d4af37;
+        }
+
+        /* Container Lingkaran */
+        .timer-container {
+            position: relative;
+            width: 400px; height: 400px;
+            display: flex; justify-content: center; align-items: center;
+            margin-bottom: 30px;
+        }
+
+        /* SVG Circle Logic */
+        .progress-ring__circle {
+            transition: stroke-dashoffset 1s linear;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* Angka di tengah lingkaran */
+        .timer-text {
+            position: absolute;
+            font-size: 8rem; font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5); /* Glow Emas */
+        }
+        
+        .timer-label {
+            font-size: 2rem; letter-spacing: 5px; text-transform: uppercase;
+            color: #d4af37; margin-bottom: 10px; opacity: 0.8;
+        }
+
+        .shaf-instruction {
+            font-size: 2.5rem; color: #fff; margin-top: 20px;
+            background: rgba(212, 175, 55, 0.2); /* Background Emas Transparan */
+            padding: 10px 40px; border-radius: 50px;
+            border: 1px solid #d4af37;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(212, 175, 55, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+        }
     </style>
 </head>
 <body>
@@ -107,7 +158,23 @@
         </div>
     </div>
 
-    <div id="overlay-iqomah"><h1 style="font-size: 5rem;">WAKTU IQOMAH</h1><div id="iqomah-timer" style="font-size: 12rem; font-weight: bold;">00:00</div><p class="fs-2">Mohon Luruskan dan Rapatkan Shaf</p></div>
+    <div id="overlay-iqomah">
+        <div class="timer-label">Menuju Iqomah</div>
+        
+        <div class="timer-container">
+            <svg class="progress-ring" width="400" height="400">
+                <circle class="progress-ring__bg" stroke="rgba(255,255,255,0.1)" stroke-width="20" fill="transparent" r="180" cx="200" cy="200"/>
+                <circle class="progress-ring__circle" stroke="#d4af37" stroke-width="20" fill="transparent" r="180" cx="200" cy="200"/>
+            </svg>
+            
+            <div id="iqomah-timer" class="timer-text">00:00</div>
+        </div>
+
+        <div class="shaf-instruction">
+            <i class="fas fa-users me-3"></i>Luruskan & Rapatkan Shaf
+        </div>
+    </div>
+
     <div id="overlay-sholat"></div>
 
     <script>
@@ -229,12 +296,29 @@
             const elSholat = document.getElementById('overlay-sholat');
             const elTimer = document.getElementById('iqomah-timer');
 
+            // Setup Lingkaran SVG
+            const circle = document.querySelector('.progress-ring__circle');
+            const radius = circle.r.baseVal.value;
+            const circumference = radius * 2 * Math.PI;
+            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+
             if (mode === 'iqomah') {
-                elIqomah.style.display = 'flex'; elSholat.style.display = 'none';
-                const diffMin = targetIqomah - curr - 1;
-                const diffSec = 60 - sec;
-                const strSec = diffSec === 60 ? '00' : (diffSec < 10 ? '0'+diffSec : diffSec);
+                elIqomah.style.display = 'flex'; 
+                elSholat.style.display = 'none';
+
+                // Hitung Sisa Waktu dalam Detik
+                const totalDurasiDetik = parseInt(appSettings.iqomah_minutes) * 60;
+                const sisaWaktuDetik = (targetIqomah - curr - 1) * 60 + (60 - sec);
+                
+                // Update Angka
+                const diffMin = Math.floor(sisaWaktuDetik / 60);
+                const diffSec = sisaWaktuDetik % 60;
+                const strSec = diffSec < 10 ? '0' + diffSec : diffSec;
                 elTimer.innerText = `${diffMin}:${strSec}`;
+
+                // Update Lingkaran (Progress Bar Mundur)
+                const offset = circumference - (sisaWaktuDetik / totalDurasiDetik) * circumference;
+                circle.style.strokeDashoffset = offset;
             } else if (mode === 'sholat') {
                 elIqomah.style.display = 'none'; elSholat.style.display = 'flex';
             } else {
