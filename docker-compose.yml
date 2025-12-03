@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # Service Laravel
+  admin_app:
+    build:
+      context: ./admin-web
+      dockerfile: Dockerfile
+    container_name: masjid_admin
+    restart: unless-stopped
+    working_dir: /var/www/admin
+    volumes:
+      - ./admin-web:/var/www/admin
+    networks:
+      - masjid_net
+    depends_on:
+      - mysql
+
+  # Service Lumen
+  api_app:
+    build:
+      context: ./api-service
+      dockerfile: Dockerfile
+    container_name: masjid_api
+    restart: unless-stopped
+    working_dir: /var/www/api
+    volumes:
+      - ./api-service:/var/www/api
+    networks:
+      - masjid_net
+    depends_on:
+      - mysql
+
+  # Service Nginx
+  nginx:
+    image: nginx:alpine
+    container_name: masjid_nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"   # Akses Laravel via http://localhost:8000
+      - "8001:81"   # Akses Lumen via http://localhost:8001
+    volumes:
+      - ./admin-web:/var/www/admin
+      - ./api-service:/var/www/api
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - admin_app
+      - api_app
+    networks:
+      - masjid_net
+
+  # Service Database
+  mysql:
+    image: mysql:5.7
+    container_name: masjid_mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: db_masjid
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - masjid_net
+
+volumes:
+  dbdata:
+
+networks:
+  masjid_net:
+    driver: bridge

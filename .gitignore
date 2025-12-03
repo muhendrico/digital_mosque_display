@@ -1,0 +1,16 @@
+# Abaikan folder library (karena berat, nanti di-install ulang pakai composer/docker)
+**/vendor
+**/node_modules
+
+# Abaikan file konfigurasi rahasia (password dll)
+.env
+.env.backup
+.DS_Store
+
+# Abaikan file IDE
+.idea
+.vscode
+
+# Abaikan folder data database Docker (agar tidak upload file bergiga-giga)
+dbdata/
+mysql/
