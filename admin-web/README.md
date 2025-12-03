@@ -1,59 +1,194 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🕌 Digital Mosque Display (Mading Masjid Digital)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi Digital Signage berbasis web untuk menampilkan informasi Masjid, Jadwal Sholat, Laporan Keuangan, dan Slider Informasi secara *real-time* di layar TV/Monitor.
 
-## About Laravel
+Dibangun menggunakan arsitektur **Microservices**:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+  * **Frontend & Admin Panel:** Laravel 10
+  * **Backend API:** Lumen 10
+  * **Database:** MySQL
+  * **Containerization:** Docker
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+*(Anda bisa mengganti link gambar di atas dengan screenshot asli proyek Anda nanti)*
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+-----
 
-## Learning Laravel
+## ✨ Fitur Utama
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+1.  **Smart Display TV:**
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+      * Tampilan *Glassmorphism* Modern.
+      * **Background Slider Hidup:** Gambar berganti otomatis memenuhi layar.
+      * **Jadwal Sholat Otomatis:** Menyesuaikan koordinat lokasi masjid (API Aladhan).
+      * **Highlight Waktu Sholat:** Penanda visual saat mendekati waktu sholat tertentu.
+      * **Running Text:** Informasi teks berjalan yang bisa diupdate realtime.
+      * **Laporan Kas Overlay:** Pop-up transparansi keuangan (Pemasukan/Pengeluaran) yang muncul di sela-sela slider.
 
-## Laravel Sponsors
+2.  **Sistem Cerdas (Smart Mode):**
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+      * **Jeda Iqomah:** Hitung mundur (Countdown) otomatis saat masuk waktu Adzan.
+      * **Standby Mode:** Layar otomatis gelap/mati saat waktu sholat berlangsung agar tidak mengganggu kekhusyukan.
 
-### Premium Partners
+3.  **Admin Panel Lengkap:**
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+      * Dashboard Statistik Modern.
+      * Pengaturan Identitas Masjid & Koordinat Lokasi.
+      * Manajemen Slider (Upload Gambar).
+      * Pencatatan Kas Masjid (Pemasukan & Pengeluaran).
 
-## Contributing
+-----
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 🚀 Cara Instalasi (Pilihan 1: Menggunakan Docker) **[Direkomendasikan]**
 
-## Code of Conduct
+Cara termudah dan tercepat karena tidak perlu install PHP/MySQL manual di komputer Anda. Pastikan **Docker** dan **Docker Compose** sudah terinstall.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 1\. Clone Repository
 
-## Security Vulnerabilities
+```bash
+git clone https://github.com/muhendrico/digital_mosque_display.git
+cd digital_mosque_display
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 2\. Setup Environment
 
-## License
+Copy file konfigurasi contoh menjadi file aktif untuk kedua layanan (Admin & API).
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+cp admin-web/.env.example admin-web/.env
+cp api-service/.env.example api-service/.env
+```
+
+*Catatan: Setting database di dalam `.env` sudah disesuaikan untuk Docker (`DB_HOST=mysql`), jadi biarkan default jika Anda tidak mengubah `docker-compose.yml`.*
+
+### 3\. Jalankan Container
+
+```bash
+docker-compose up -d --build
+```
+
+Tunggu hingga semua container (nginx, mysql, admin\_app, api\_app) berjalan.
+
+### 4\. Instalasi Dependensi & Database
+
+Jalankan perintah berikut satu per satu untuk menyiapkan aplikasi:
+
+```bash
+# 1. Install Library PHP
+docker-compose exec admin_app composer install
+docker-compose exec api_app composer install
+
+# 2. Generate Key Keamanan
+docker-compose exec admin_app php artisan key:generate
+
+# 3. Migrasi Database & Isi Data Awal (Seeder)
+docker-compose exec admin_app php artisan migrate --seed
+
+# 4. Link Folder Gambar (Agar slider muncul)
+docker-compose exec admin_app php artisan storage:link
+```
+
+### 5\. Selesai\!
+
+Akses aplikasi melalui browser:
+
+  * **Layar TV:** [http://localhost:8000](https://www.google.com/search?q=http://localhost:8000)
+  * **Admin Panel:** [http://localhost:8000/admin](https://www.google.com/search?q=http://localhost:8000/admin)
+  * **API Endpoint:** [http://localhost:8001](https://www.google.com/search?q=http://localhost:8001)
+
+-----
+
+## 💻 Cara Instalasi (Pilihan 2: Manual / Tanpa Docker)
+
+Gunakan cara ini jika Anda menginstall di Hosting cPanel atau XAMPP/Laragon lokal.
+
+**Syarat:** PHP \>= 8.1, Composer, MySQL.
+
+### 1\. Persiapan Database
+
+Buat database baru di MySQL (misal via phpMyAdmin) dengan nama `db_masjid`.
+
+### 2\. Setup API Service (Lumen)
+
+Buka terminal di folder `api-service`:
+
+```bash
+cd api-service
+composer install
+cp .env.example .env
+```
+
+Edit file `.env`, sesuaikan koneksi database Anda:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=db_masjid
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Jalankan API di port **8001**:
+
+```bash
+php -S localhost:8001 -t public
+```
+
+### 3\. Setup Admin Web (Laravel)
+
+Buka terminal baru di folder `admin-web`:
+
+```bash
+cd admin-web
+composer install
+cp .env.example .env
+```
+
+Edit file `.env`, sesuaikan koneksi database (sama dengan API):
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_DATABASE=db_masjid
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Jalankan perintah setup:
+
+```bash
+php artisan key:generate
+php artisan migrate --seed
+php artisan storage:link
+```
+
+Jalankan Admin di port **8000**:
+
+```bash
+php artisan serve --port=8000
+```
+
+-----
+
+## ⚙️ Konfigurasi Penting
+
+### Mengubah IP Address API
+
+Secara default, Tampilan TV (`index.blade.php`) diatur untuk menghubungi API di `localhost:8001`.
+
+Jika Anda memasang ini di jaringan lokal (agar bisa diakses HP lain), Anda perlu mengubah alamat IP di file `admin-web/resources/views/tv/index.blade.php`:
+
+```javascript
+// Ganti localhost dengan IP Komputer Server (misal: 192.168.1.10)
+const API_URL = 'http://192.168.1.10:8001';
+```
+
+-----
+
+## 🤝 Kontribusi
+
+Silakan *fork* repository ini dan kirimkan *Pull Request* jika Anda memiliki ide fitur baru yang bermanfaat untuk kemakmuran masjid.
+
+## 📄 Lisensi
+
+Open Source (MIT License). Bebas digunakan dan dimodifikasi untuk kepentingan Masjid mana pun.
