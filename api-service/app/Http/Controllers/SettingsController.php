@@ -16,6 +16,11 @@ class SettingsController extends Controller
         // Contoh output: {'nama_masjid': 'Al-Hidayah', 'running_text': 'Selamat Datang...'}
         $formatted = $data->pluck('value', 'key');
 
+        // Jika ada qr_infaq, ubah jadi Full URL agar bisa dibuka TV
+        if (isset($formatted['qr_infaq'])) {
+            $formatted['qr_infaq_url'] = 'http://localhost:8000/storage/' . $formatted['qr_infaq'];
+        }
+
         return response()->json($formatted);
     }
 }

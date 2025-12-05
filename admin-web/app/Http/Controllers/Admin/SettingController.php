@@ -27,23 +27,28 @@ class SettingController extends Controller
             'longitude' => 'required',
             'iqomah_minutes' => 'required|numeric', 
             'standby_minutes' => 'required|numeric',
+            'qr_infaq'    => 'nullable|image|max:2048',
         ]);
 
-        $data = $request->only([
-            'nama_masjid', 
-            'alamat', 
-            'running_text', 
-            'latitude', 
-            'longitude',
-            'iqomah_minutes',
-            'standby_minutes'
-        ]);
+        // Ambil semua data input kecuali file & token
+        $data = $request->except(['_token', '_method', 'qr_infaq']);
         
+        // 1. PROSES UPLOAD FILE (Jika ada)
+        if ($request->hasFile('qr_infaq')) {
+            $path = $request->file('qr_infaq')->store('settings', 'public');
+            // Masukkan path gambar ke dalam data yang akan disimpan ke DB
+            $data['qr_infaq'] = $path;
+        }
+
+        // 2. SIMPAN KE DATABASE (Looping Key-Value)
         foreach ($data as $key => $value) {
-            Setting::updateOrCreate(
-                ['key' => $key],
-                ['value' => $value]
-            );
+            // Pastikan value tidak null (file upload bisa null jika tidak diupdate)
+            if ($value !== null) {
+                Setting::updateOrCreate(
+                    ['key' => $key],
+                    ['value' => $value]
+                );
+            }
         }
 
         return redirect()->back()->with('success', 'Pengaturan berhasil disimpan!');

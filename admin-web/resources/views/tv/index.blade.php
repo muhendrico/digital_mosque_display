@@ -19,7 +19,8 @@
 
         /* HEADER & FOOTER UI */
         .header-bar { position: absolute; top: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 25px 50px; z-index: 100; }
-        .clock-big { font-size: 4.5rem; font-weight: 700; background: rgba(255,255,255,0.9); color: #000; padding: 5px 35px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        /* Lebar jam saya buat auto agar muat detik */
+        .clock-big { font-size: 4.5rem; font-weight: 700; background: rgba(255,255,255,0.9); color: #000; padding: 5px 35px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); min-width: 320px; text-align: center; }
         .masjid-info h1 { font-size: 2.8rem; font-weight: bold; margin: 0; text-shadow: 2px 2px 4px #000; }
         .masjid-info p { font-size: 1.4rem; margin: 0; text-shadow: 1px 1px 2px #000; opacity: 0.9; }
         .date-info { text-align: right; text-shadow: 1px 1px 2px #000; }
@@ -54,60 +55,55 @@
         .f-value { font-size: 2.5rem; font-weight: bold; }
         .text-in { color: #2ecc71; } .text-out { color: #e74c3c; }
 
-        /* IQOMAH & SHOLAT */
-        #overlay-iqomah, #overlay-sholat { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
-        #overlay-iqomah { background: rgba(0,0,0,0.95); color: #d4af37; }
-        #overlay-sholat { background: #000; color: #333; }
-
-        /* --- DESAIN BARU OVERLAY IQOMAH --- */
-        #overlay-iqomah {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 9999; 
-            background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%); /* Gradasi Hitam Elegan */
-            justify-content: center; align-items: center; flex-direction: column;
-            color: #d4af37;
-        }
-
-        /* Container Lingkaran */
-        .timer-container {
-            position: relative;
-            width: 400px; height: 400px;
-            display: flex; justify-content: center; align-items: center;
-            margin-bottom: 30px;
-        }
-
-        /* SVG Circle Logic */
-        .progress-ring__circle {
-            transition: stroke-dashoffset 1s linear;
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
-        }
-
-        /* Angka di tengah lingkaran */
-        .timer-text {
+        /* IQOMAH & SHOLAT (Update CSS Lingkaran) */
+        #overlay-iqomah { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%); justify-content: center; align-items: center; flex-direction: column; color: #d4af37; }
+        .timer-container { position: relative; width: 400px; height: 400px; display: flex; justify-content: center; align-items: center; margin-bottom: 30px; }
+        .progress-ring__circle { transition: stroke-dashoffset 1s linear; transform: rotate(-90deg); transform-origin: 50% 50%; }
+        .timer-text { position: absolute; font-size: 8rem; font-weight: bold; color: #fff; text-shadow: 0 0 20px rgba(212, 175, 55, 0.5); }
+        .timer-label { font-size: 2rem; letter-spacing: 5px; text-transform: uppercase; color: #d4af37; margin-bottom: 10px; opacity: 0.8; }
+        .shaf-instruction { font-size: 2.5rem; color: #fff; margin-top: 20px; background: rgba(212, 175, 55, 0.2); padding: 10px 40px; border-radius: 50px; border: 1px solid #d4af37; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); } 70% { box-shadow: 0 0 0 20px rgba(212, 175, 55, 0); } 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } }
+        #overlay-sholat { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; background: #000; color: #333; justify-content: center; align-items: center; flex-direction: column; }
+    
+        /* STYLE QRIS FLOATING */
+        .qris-floating {
             position: absolute;
-            font-size: 8rem; font-weight: bold;
-            color: #fff;
-            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5); /* Glow Emas */
+            top: 130px; /* Di bawah header */
+            right: 30px; /* Pojok kanan */
+            width: 220px;
+            background: rgba(0, 0, 0, 0.6); /* Hitam Transparan */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.5); /* Border Emas */
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            z-index: 80; /* Di atas slider, di bawah alert iqomah */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: none; /* Hidden kalau belum ada data */
+            animation: slideInRight 1s ease;
         }
         
-        .timer-label {
-            font-size: 2rem; letter-spacing: 5px; text-transform: uppercase;
-            color: #d4af37; margin-bottom: 10px; opacity: 0.8;
+        .qris-box img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 2px solid #fff;
         }
 
-        .shaf-instruction {
-            font-size: 2.5rem; color: #fff; margin-top: 20px;
-            background: rgba(212, 175, 55, 0.2); /* Background Emas Transparan */
-            padding: 10px 40px; border-radius: 50px;
-            border: 1px solid #d4af37;
-            animation: pulse 2s infinite;
+        .qris-title {
+            color: #d4af37; font-weight: bold; font-size: 1rem;
+            margin-top: 10px; letter-spacing: 1px;
+        }
+        
+        .qris-bank {
+            color: #fff; font-size: 0.85rem; margin-top: 5px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 5px;
         }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
-            70% { box-shadow: 0 0 0 20px rgba(212, 175, 55, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
     </style>
 </head>
@@ -117,6 +113,16 @@
         <div class="gradient-overlay"></div>
         <img id="bg-image" class="bg-media media-active" src="https://images.unsplash.com/photo-1564121211835-e88c852648ab?q=80&w=1920&auto=format&fit=crop">
         <video id="bg-video" class="bg-media" muted playsinline></video>
+    </div>
+
+    <div id="qris-widget" class="qris-floating">
+        <div class="qris-box">
+            <img id="qris-img" src="" alt="QRIS">
+        </div>
+        <div class="qris-info">
+            <div class="qris-title">INFAQ SCAN QRIS</div>
+            <div id="qris-bank" class="qris-bank">-</div>
+        </div>
     </div>
 
     <div id="overlay-finance">
@@ -131,7 +137,7 @@
     </div>
 
     <div class="header-bar">
-        <div class="clock-big" id="clock">00:00</div>
+        <div class="clock-big" id="clock">00:00:00</div>
         <div class="masjid-info">
             <h1 id="masjid-name">Masjid Raya</h1>
             <p id="masjid-address">Jalan...</p>
@@ -160,21 +166,15 @@
 
     <div id="overlay-iqomah">
         <div class="timer-label">Menuju Iqomah</div>
-        
         <div class="timer-container">
             <svg class="progress-ring" width="400" height="400">
                 <circle class="progress-ring__bg" stroke="rgba(255,255,255,0.1)" stroke-width="20" fill="transparent" r="180" cx="200" cy="200"/>
                 <circle class="progress-ring__circle" stroke="#d4af37" stroke-width="20" fill="transparent" r="180" cx="200" cy="200"/>
             </svg>
-            
             <div id="iqomah-timer" class="timer-text">00:00</div>
         </div>
-
-        <div class="shaf-instruction">
-            <i class="fas fa-users me-3"></i>Luruskan & Rapatkan Shaf
-        </div>
+        <div class="shaf-instruction"><i class="fas fa-users me-3"></i>Luruskan & Rapatkan Shaf</div>
     </div>
-
     <div id="overlay-sholat"></div>
 
     <script>
@@ -183,29 +183,24 @@
         let sliderIndex = 0;
         const formatRupiah = (angka) => new Intl.NumberFormat('id-ID').format(angka);
 
-        // --- 1. CLOCK ---
+        // --- 1. CLOCK (UPDATE: ADA DETIK) ---
         setInterval(() => { 
             const now = new Date(); 
-            document.getElementById('clock').innerText = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }); 
+            // Tambahkan 'second: 2-digit'
+            document.getElementById('clock').innerText = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); 
             document.getElementById('date-masehi').innerText = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); 
         }, 1000);
 
         // --- 2. FETCH DATA ---
         async function fetchAllData() {
             try {
-                // Settings
-                const s = await fetch(`${API_URL}/settings`).then(r => r.json()); 
-                appSettings = s; 
+                const s = await fetch(`${API_URL}/settings`).then(r => r.json()); appSettings = s; 
                 if(s.nama_masjid) document.getElementById('masjid-name').innerText = s.nama_masjid; 
                 if(s.alamat) document.getElementById('masjid-address').innerText = s.alamat; 
                 if(s.running_text) document.getElementById('running-text').innerText = s.running_text;
 
-                // Prayers
-                const p = await fetch(`${API_URL}/prayers`).then(r => r.json()); 
-                prayerTimes = p; 
-                updatePrayerUI(p);
-
-                // Finance
+                const p = await fetch(`${API_URL}/prayers`).then(r => r.json()); prayerTimes = p; updatePrayerUI(p);
+                
                 financeData = await fetch(`${API_URL}/finances`).then(r => r.json()); 
                 if(financeData) { 
                     document.getElementById('fin-saldo').innerText = formatRupiah(financeData.saldo); 
@@ -213,22 +208,27 @@
                     document.getElementById('fin-keluar').innerText = formatRupiah(financeData.pengeluaran_total); 
                 }
 
-                // Sliders
                 slidersData = await fetch(`${API_URL}/sliders`).then(r => r.json());
-                
-                // Cek apakah rotasi sudah jalan?
-                if(!window.rotationStarted && slidersData.length > 0) { 
-                    window.rotationStarted = true; 
-                    runSliderRotation(); 
+                if(!window.rotationStarted && slidersData.length > 0) { window.rotationStarted = true; runSliderRotation(); }
+
+                // Update QR Widget
+                if (s.qr_infaq_url) {
+                    const widget = document.getElementById('qris-widget');
+                    const img = document.getElementById('qris-img');
+                    
+                    img.src = s.qr_infaq_url;
+                    document.getElementById('qris-bank').innerText = s.bank_info || 'Infaq Operasional';
+                    
+                    widget.style.display = 'block'; // Munculkan widget
+                } else {
+                    document.getElementById('qris-widget').style.display = 'none';
                 }
             } catch (e) { console.error("Fetch Error:", e); }
         }
 
         // --- 3. PRAYER UI UPDATER ---
         function updatePrayerUI(data) {
-            if(data.date_hijri) {
-                document.getElementById('date-hijri').innerText = data.date_hijri;
-            }
+            if(data.date_hijri) { document.getElementById('date-hijri').innerText = data.date_hijri; }
             document.getElementById('time-terbit').innerText = data.Terbit || '--:--';
             document.getElementById('time-subuh').innerText = data.Subuh;
             document.getElementById('time-dzuhur').innerText = data.Dzuhur;
@@ -249,9 +249,7 @@
                 document.getElementById(`cd-${id}`).innerText = "";
             });
 
-            let activeId = 'subuh'; 
-            let targetTime = toMin(times.Subuh);
-
+            let activeId = 'subuh'; let targetTime = toMin(times.Subuh);
             if (curr < toMin(times.Subuh)) { activeId = 'subuh'; targetTime = toMin(times.Subuh); }
             else if (curr < toMin(times.Dzuhur)) { activeId = 'dzuhur'; targetTime = toMin(times.Dzuhur); }
             else if (curr < toMin(times.Ashar)) { activeId = 'ashar'; targetTime = toMin(times.Ashar); }
@@ -267,7 +265,7 @@
             }
         }
 
-        // --- 5. LOGIKA IQOMAH CHECK ---
+        // --- 5. LOGIKA IQOMAH CHECK (Dengan Lingkaran) ---
         function checkPrayerStatus() {
             if (!prayerTimes.Subuh || !appSettings.iqomah_minutes) return;
             const now = new Date();
@@ -278,14 +276,9 @@
             const iqomahDur = parseInt(appSettings.iqomah_minutes);
             const sholatDur = parseInt(appSettings.standby_minutes);
             
-            const prayers = [
-                { t: toMin(prayerTimes.Subuh) }, { t: toMin(prayerTimes.Dzuhur) },
-                { t: toMin(prayerTimes.Ashar) }, { t: toMin(prayerTimes.Maghrib) },
-                { t: toMin(prayerTimes.Isya) }
-            ];
+            const prayers = [ { t: toMin(prayerTimes.Subuh) }, { t: toMin(prayerTimes.Dzuhur) }, { t: toMin(prayerTimes.Ashar) }, { t: toMin(prayerTimes.Maghrib) }, { t: toMin(prayerTimes.Isya) } ];
 
             let mode = 'normal'; let targetIqomah = 0;
-
             prayers.forEach(p => {
                 const adzan = p.t; const iqomah = adzan + iqomahDur; const selesai = iqomah + sholatDur;
                 if (curr >= adzan && curr < iqomah) { mode = 'iqomah'; targetIqomah = iqomah; } 
@@ -295,38 +288,34 @@
             const elIqomah = document.getElementById('overlay-iqomah');
             const elSholat = document.getElementById('overlay-sholat');
             const elTimer = document.getElementById('iqomah-timer');
-
-            // Setup Lingkaran SVG
             const circle = document.querySelector('.progress-ring__circle');
-            const radius = circle.r.baseVal.value;
-            const circumference = radius * 2 * Math.PI;
-            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+            
+            if (circle) {
+                const radius = circle.r.baseVal.value;
+                const circumference = radius * 2 * Math.PI;
+                circle.style.strokeDasharray = `${circumference} ${circumference}`;
 
-            if (mode === 'iqomah') {
-                elIqomah.style.display = 'flex'; 
-                elSholat.style.display = 'none';
+                if (mode === 'iqomah') {
+                    elIqomah.style.display = 'flex'; elSholat.style.display = 'none';
+                    const totalDurasiDetik = iqomahDur * 60;
+                    const sisaWaktuDetik = (targetIqomah - curr - 1) * 60 + (60 - sec);
+                    
+                    const diffMin = Math.floor(sisaWaktuDetik / 60);
+                    const diffSec = sisaWaktuDetik % 60;
+                    const strSec = diffSec < 10 ? '0' + diffSec : diffSec;
+                    elTimer.innerText = `${diffMin}:${strSec}`;
 
-                // Hitung Sisa Waktu dalam Detik
-                const totalDurasiDetik = parseInt(appSettings.iqomah_minutes) * 60;
-                const sisaWaktuDetik = (targetIqomah - curr - 1) * 60 + (60 - sec);
-                
-                // Update Angka
-                const diffMin = Math.floor(sisaWaktuDetik / 60);
-                const diffSec = sisaWaktuDetik % 60;
-                const strSec = diffSec < 10 ? '0' + diffSec : diffSec;
-                elTimer.innerText = `${diffMin}:${strSec}`;
-
-                // Update Lingkaran (Progress Bar Mundur)
-                const offset = circumference - (sisaWaktuDetik / totalDurasiDetik) * circumference;
-                circle.style.strokeDashoffset = offset;
-            } else if (mode === 'sholat') {
-                elIqomah.style.display = 'none'; elSholat.style.display = 'flex';
-            } else {
-                elIqomah.style.display = 'none'; elSholat.style.display = 'none';
+                    const offset = circumference - (sisaWaktuDetik / totalDurasiDetik) * circumference;
+                    circle.style.strokeDashoffset = offset;
+                } else if (mode === 'sholat') {
+                    elIqomah.style.display = 'none'; elSholat.style.display = 'flex';
+                } else {
+                    elIqomah.style.display = 'none'; elSholat.style.display = 'none';
+                }
             }
         }
 
-        // --- 6. LOGIKA ROTASI MULTIMEDIA ---
+        // --- 6. LOGIKA ROTASI MULTIMEDIA (FIXED TYPO) ---
         function runSliderRotation() {
             const bgImage = document.getElementById('bg-image');
             const bgVideo = document.getElementById('bg-video');
@@ -335,59 +324,35 @@
 
             function nextSlide() {
                 clearTimeout(sliderTimeout);
-
-                // Pause jika sedang mode Iqomah/Sholat
-                if(document.getElementById('overlay-iqomah').style.display === 'flex' || 
-                   document.getElementById('overlay-sholat').style.display === 'flex') {
-                    bgVideo.pause(); 
-                    sliderTimeout = setTimeout(nextSlide, 5000); 
-                    return;
+                if(document.getElementById('overlay-iqomah').style.display === 'flex' || document.getElementById('overlay-sholat').style.display === 'flex') {
+                    bgVideo.pause(); sliderTimeout = setTimeout(nextSlide, 5000); return;
                 }
-
                 bgVideo.onended = null; 
 
                 if (sliderIndex < slidersData.length) {
                     overlayFinance.style.display = 'none';
-                    
-                    // === PERBAIKAN DI SINI (Variable yang tadi typo) ===
-                    const currentSlide = slidersData[sliderIndex];
+                    const currentSlide = slidersData[sliderIndex]; // VARIABLE FIX
 
                     if (currentSlide.type === 'video') {
-                        // MODE VIDEO
                         bgImage.classList.remove('media-active');
                         bgVideo.src = currentSlide.image_url;
                         bgVideo.classList.add('media-active'); 
                         bgVideo.play().catch(e => console.log("Autoplay blocked")); 
-
-                        bgVideo.onended = function() {
-                            sliderIndex++;
-                            nextSlide(); 
-                        };
+                        bgVideo.onended = function() { sliderIndex++; nextSlide(); };
                     } else {
-                        // MODE GAMBAR
-                        bgVideo.pause();
-                        bgVideo.classList.remove('media-active'); 
+                        bgVideo.pause(); bgVideo.classList.remove('media-active'); 
                         bgImage.src = currentSlide.image_url;
                         bgImage.classList.add('media-active'); 
-                        
-                        sliderIndex++;
-                        sliderTimeout = setTimeout(nextSlide, 10000);
+                        sliderIndex++; sliderTimeout = setTimeout(nextSlide, 10000);
                     }
                 } else {
-                    // MODE FINANCE
-                    bgVideo.pause();
-                    bgVideo.classList.remove('media-active');
-
+                    bgVideo.pause(); bgVideo.classList.remove('media-active');
                     if(financeData && financeData.saldo) {
                         overlayFinance.style.display = 'flex';
                         sliderIndex = 0; 
-                        sliderTimeout = setTimeout(() => {
-                            overlayFinance.style.display = 'none';
-                            nextSlide();
-                        }, 10000); 
+                        sliderTimeout = setTimeout(() => { overlayFinance.style.display = 'none'; nextSlide(); }, 10000); 
                     } else {
-                        sliderIndex = 0;
-                        nextSlide();
+                        sliderIndex = 0; nextSlide();
                     }
                 }
             }

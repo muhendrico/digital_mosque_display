@@ -12,13 +12,12 @@
     </div>
     @endif
 
-    <form action="{{ route('admin.settings.update') }}" method="POST">
+    <form action="{{ route('admin.settings.update') }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
         <div class="row">
-            <div class="col-lg-6">
-                
+            <div class="col-lg-6">                
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="card-title mb-0"><i class="bi bi-building me-2"></i> Identitas Masjid</h5>
@@ -70,8 +69,7 @@
 
             </div>
 
-            <div class="col-lg-6">
-                
+            <div class="col-lg-6">           
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="card-title mb-0"><i class="bi bi-tv me-2"></i> Konfigurasi Layar</h5>
@@ -127,6 +125,30 @@
                                 <i class="bi bi-save me-2"></i> Simpan Perubahan
                             </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bi bi-qr-code-scan me-2"></i> Info Infaq & QRIS</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label text-white-50">Upload Gambar QRIS</label>
+                        <div class="d-flex align-items-center gap-3">
+                            @if(isset($settings['qr_infaq']))
+                                <img src="{{ asset('storage/'.$settings['qr_infaq']) }}" width="60" class="rounded border">
+                            @endif
+                            <input type="file" name="qr_infaq" class="form-control">
+                        </div>
+                        <div class="form-text text-white-50 small">Gambar ini akan tampil terus di layar TV.</div>
+                    </div>
+            
+                    <div class="mb-3">
+                        <label class="form-label text-white-50">Info Bank / Rekening</label>
+                        <input type="text" name="bank_info" class="form-control" 
+                               value="{{ $settings['bank_info'] ?? '' }}" placeholder="BSI: 123456789 a.n Masjid">
                     </div>
                 </div>
             </div>
