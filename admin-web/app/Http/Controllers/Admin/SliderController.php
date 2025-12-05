@@ -19,31 +19,52 @@ class SliderController extends Controller
     {
         $request->validate([
             'title' => 'nullable|string|max:100',
-            // Update validasi: Boleh Gambar (jpeg,png,jpg) ATAU Video (mp4)
-            // Max ukuran kita naikkan misal jadi 20MB (20480 KB) untuk video pendek
-            'image' => 'required|file|mimes:jpeg,png,jpg,mp4|max:20480', 
+            'slider_type' => 'required|in:media,infaq', 
         ]);
     
-        if ($request->hasFile('image')) {
+        $type = 'image';
+        $path = null;
+        $extraData = null;
+
+        // A. SLIDE MEDIA BIASA
+        if ($request->slider_type == 'media') {
+            $request->validate(['image' => 'required|file|mimes:jpeg,png,jpg,mp4|max:20480']);
             $file = $request->file('image');
             $path = $file->store('sliders', 'public');
-    
-            // DETEKSI TIPE FILE OTOMATIS
-            // Ambil MIME type (contoh: 'image/jpeg' atau 'video/mp4')
             $mime = $file->getMimeType();
-            // Ambil kata depannya saja ('image' atau 'video')
             $type = explode('/', $mime)[0]; 
-    
-            Slider::create([
-                'title' => $request->title,
-                'image_path' => $path,
-                'type' => $type, // Simpan tipenya ('image' atau 'video')
-                'is_active' => true
-            ]);
         }
+        // B. SLIDE INFAQ / MOTIVASI (REVISI)
+        else if ($request->slider_type == 'infaq') {
+            $request->validate([
+                'quote' => 'required|string|max:500',
+                'bg_image' => 'nullable|image|mimes:jpeg,png,jpg|max:5048', 
+            ]);
     
-        return redirect()->back()->with('success', 'Media berhasil diupload!');
-    }
+            $type = 'infaq';
+            
+            // Cek Upload
+            if($request->hasFile('bg_image')){
+                // Simpan file user
+                $path = $request->file('bg_image')->store('sliders', 'public');
+            } else {
+                // Gunakan KODE ini untuk memanggil gambar default yang kita taruh di folder public tadi
+                $path = 'USE_DEFAULT_IMAGE'; 
+            }
+    
+            $extraData = ['quote' => $request->quote];
+        }
+
+        Slider::create([
+            'title' => $request->title,
+            'image_path' => $path, // Bisa null jika infaq tidak pakai gambar
+            'type' => $type,
+            'extra_data' => $extraData,
+            'is_active' => true
+        ]);
+
+        return redirect()->back()->with('success', 'Slide berhasil ditambahkan!');
+        }
 
     public function destroy($id)
     {

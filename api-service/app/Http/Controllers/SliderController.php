@@ -2,22 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Slider; // Pastikan Model Slider sudah ada di API Service juga
+use Illuminate\Support\Facades\DB;
 
 class SliderController extends Controller
 {
     public function index()
     {
-        $sliders = DB::table('sliders')
-                    ->where('is_active', 1)
+        // PENTING: Gunakan Model 'Slider::' bukan 'DB::table' 
+        // agar kolom 'extra_data' otomatis berubah dari String JSON menjadi Array/Object
+        $sliders = Slider::where('is_active', 1)
                     ->orderBy('order', 'asc')
                     ->get();
         
-        // Kita harus melengkapi path gambar agar menjadi URL penuh
-        // Karena gambarnya ada di service Admin (port 8000), kita hardcode base url-nya
         $mapped = $sliders->map(function($item) {
-            $item->image_url = 'http://localhost:8000/storage/' . $item->image_path;
+            // LOGIKA URL GAMBAR
+            if ($item->image_path === 'USE_DEFAULT_IMAGE') {
+                // Jika default, arahkan ke file statis di folder public Admin (Port 8000)
+                $item->image_url = 'http://localhost:8000/default-slide.jpg';
+            } else {
+                // Jika gambar biasa/video, arahkan ke storage
+                $item->image_url = 'http://localhost:8000/storage/' . $item->image_path;
+            }
             return $item;
         });
 
