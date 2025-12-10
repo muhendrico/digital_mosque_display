@@ -264,7 +264,7 @@
 
         async function fetchAllData() {
             try {
-                const s = await fetch(`${API_URL}/settings`).then(r => r.json()); appSettings = s; 
+                const s = await fetch(`${API_URL}/v1/mading/master/settings`).then(r => r.json()); appSettings = s; 
                 safeText('masjid-name', s.nama_masjid); safeText('masjid-address', s.alamat); safeText('running-text', s.running_text);
                 if (s.qr_infaq_url) {
                     document.getElementById('ui-qris').style.display = 'block';
@@ -272,11 +272,11 @@
                     safeText('qris-bank', s.bank_info || '-');
                 } else { document.getElementById('ui-qris').style.display = 'none'; }
 
-                const p = await fetch(`${API_URL}/prayers`).then(r => r.json()); prayerTimes = p; updatePrayerUI(p);
-                const f = await fetch(`${API_URL}/finances`).then(r => r.json()); financeData = f;
+                const p = await fetch(`${API_URL}/v1/mading/dash/prayers`).then(r => r.json()); prayerTimes = p; updatePrayerUI(p);
+                const f = await fetch(`${API_URL}/v1/mading/trans/finances`).then(r => r.json()); financeData = f;
                 if(f) { safeText('fin-saldo', formatRupiah(f.saldo)); safeText('fin-masuk', formatRupiah(f.pemasukan_total)); safeText('fin-keluar', formatRupiah(f.pengeluaran_total)); }
                 
-                const sl = await fetch(`${API_URL}/sliders`).then(r => r.json());
+                const sl = await fetch(`${API_URL}/v1/mading/master/sliders`).then(r => r.json());
                 if(JSON.stringify(sl) !== JSON.stringify(slidersData)) {
                     slidersData = sl;
                     if(!window.rotationStarted && slidersData.length > 0) { window.rotationStarted = true; runSliderRotation(); }

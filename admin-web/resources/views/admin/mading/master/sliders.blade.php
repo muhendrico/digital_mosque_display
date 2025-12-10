@@ -26,7 +26,7 @@
                     <div class="tab-content">
                         
                         <div class="tab-pane fade show active" id="tab-media">
-                            <form action="{{ route('admin.sliders.store') }}" method="POST" enctype="multipart/form-data">
+                            <form action="{{ route('admin.master.sliders.store') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" name="slider_type" value="media">
                                 
@@ -47,7 +47,7 @@
                         </div>
 
                         <div class="tab-pane fade" id="tab-infaq">
-                            <form action="{{ route('admin.sliders.store') }}" method="POST" enctype="multipart/form-data">
+                            <form action="{{ route('admin.master.sliders.store') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" name="slider_type" value="infaq">
 
@@ -135,7 +135,7 @@
                                         </div>
                                     </td>
                                     <td class="text-center">
-                                        <form action="{{ route('admin.sliders.delete', $slider->id) }}" method="POST" onsubmit="return confirm('Yakin hapus media ini?');">
+                                        <form action="{{ route('admin.master.sliders.destroy', $slider->id) }}" method="POST" onsubmit="return confirm('Yakin hapus media ini?');">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger" title="Hapus">
                                                 <i class="bi bi-trash-fill"></i>

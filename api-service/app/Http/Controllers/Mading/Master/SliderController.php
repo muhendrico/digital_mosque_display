@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Mading\Master;
 
 use App\Http\Controllers\Controller;
 use App\Models\Slider; // Pastikan Model Slider sudah ada di API Service juga

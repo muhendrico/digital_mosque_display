@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Mading\Trans;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -18,7 +18,7 @@ class FinanceController extends Controller
         $pengeluaran = Finance::where('type', 'pengeluaran')->sum('amount');
         $saldo = $pemasukan - $pengeluaran;
 
-        return view('admin.finances.index', compact('finances', 'saldo'));
+        return view('admin.mading.trans.finances.index', compact('finances', 'saldo'));
     }
 
     public function store(Request $request)

@@ -172,22 +172,22 @@
                 </li>
 
                 <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('admin.settings') ? 'active' : '' }}"
-                        href="{{ route('admin.settings') }}">
+                    <a class="nav-link {{ request()->routeIs('admin.master.settings*') ? 'active' : '' }}"
+                        href="{{ route('admin.master.settings.index') }}">
                         <i class="bi bi-gear-fill me-2"></i> Pengaturan
                     </a>
                 </li>
 
                 <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('admin.sliders*') ? 'active' : '' }}"
-                        href="{{ route('admin.sliders') }}">
+                    <a class="nav-link {{ request()->routeIs('admin.master.sliders*') ? 'active' : '' }}"
+                        href="{{ route('admin.master.sliders.index') }}">
                         <i class="bi bi-images me-2"></i> Slider Gambar
                     </a>
                 </li>
 
                 <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('admin.finances*') ? 'active' : '' }}"
-                        href="{{ route('admin.finances') }}">
+                    <a class="nav-link {{ request()->routeIs('admin.trans.finances*') ? 'active' : '' }}"
+                        href="{{ route('admin.trans.finances.index') }}">
                         <i class="bi bi-wallet2 me-2"></i> Laporan Kas
                     </a>
                 </li>

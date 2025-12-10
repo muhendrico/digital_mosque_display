@@ -28,7 +28,7 @@
                     <h5 class="card-title mb-0 text-primary-emphasis"><i class="bi bi-pencil-square me-2"></i> Catat Transaksi</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.finances.store') }}" method="POST">
+                    <form action="{{ route('admin.trans.finances.store') }}" method="POST">
                         @csrf
                         
                         <div class="mb-3">
@@ -96,7 +96,7 @@
                                         {{ $data->type == 'pengeluaran' ? number_format($data->amount,0,',','.') : '-' }}
                                     </td>
                                     <td class="text-center pe-3">
-                                        <form action="{{ route('admin.finances.delete', $data->id) }}" method="POST" onsubmit="return confirm('Hapus data ini?');">
+                                        <form action="{{ route('admin.trans.finances.destroy', $data->id) }}" method="POST" onsubmit="return confirm('Hapus data ini?');">
                                             @csrf @method('DELETE')
                                             <button class="btn btn-sm btn-outline-danger border-0">
                                                 <i class="bi bi-x-lg"></i>

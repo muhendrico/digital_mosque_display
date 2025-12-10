@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Mading\Master;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -12,7 +12,7 @@ class SliderController extends Controller
     public function index()
     {
         $sliders = Slider::orderBy('order', 'asc')->get();
-        return view('admin.sliders.index', compact('sliders'));
+        return view('admin.mading.master.sliders', compact('sliders'));
     }
 
     public function store(Request $request)

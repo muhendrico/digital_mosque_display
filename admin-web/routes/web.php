@@ -1,31 +1,46 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\SettingController;
 
-// Halaman TV (Akses root langsung ke TV biar mudah)
+// Import Controller dengan Namespace BARU (Mading Structure)
+// Pastikan Anda SUDAH memindahkan file controllernya sesuai langkah sebelumnya
+use App\Http\Controllers\Mading\Dash\DashboardTvController;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes (Admin Web)
+|--------------------------------------------------------------------------
+*/
+
+// --- 1. HALAMAN UTAMA (TV DISPLAY) ---
+// Akses: http://localhost:8000/
+// Mengarahkan langsung ke tampilan TV (tanpa login)
 Route::get('/', function () {
-    return view('tv.index');
-});
+    // Arahkan ke View TV yang baru (sesuaikan path view anda jika sudah dipindah)
+    // Jika masih path lama: return view('tv.index');
+    return view('admin.mading.dash.tv_dashboard'); 
+})->name('tv.root');
 
-// Group route untuk admin (biar rapi)
-Route::prefix('admin')->group(function () {
-    // Dashboard (yang lama)
+
+// --- 2. GROUP ADMIN (TANPA AUTH) ---
+// Akses: http://localhost:8000/admin/...
+Route::prefix('admin')->name('admin.')->group(function () {
+
+    // Dashboard Admin
     Route::get('/', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+        return view('admin.mading.dash.admin_dashboard');
+    })->name('dashboard'); // Nama route: admin.dashboard
 
-    // Route Settings
-    Route::get('/settings', [SettingController::class, 'index'])->name('admin.settings');
-    Route::put('/settings', [SettingController::class, 'update'])->name('admin.settings.update');
+    // --- LOAD ROUTE MODULAR ---
+    // Kita panggil file-file route yang ada di folder routes/mading/
     
-    // Route Sliders
-    Route::get('/sliders', [App\Http\Controllers\Admin\SliderController::class, 'index'])->name('admin.sliders');
-    Route::post('/sliders', [App\Http\Controllers\Admin\SliderController::class, 'store'])->name('admin.sliders.store');
-    Route::delete('/sliders/{id}', [App\Http\Controllers\Admin\SliderController::class, 'destroy'])->name('admin.sliders.delete');    
+    // a. Master Data (Sliders, Settings) -> URL: /admin/master/...
+    require __DIR__ . '/mading/master.php';
 
-    // Route Finances
-    Route::get('/finances', [App\Http\Controllers\Admin\FinanceController::class, 'index'])->name('admin.finances');
-    Route::post('/finances', [App\Http\Controllers\Admin\FinanceController::class, 'store'])->name('admin.finances.store');
-    Route::delete('/finances/{id}', [App\Http\Controllers\Admin\FinanceController::class, 'destroy'])->name('admin.finances.delete');
+    // b. Transaksi (Finances) -> URL: /admin/trans/...
+    require __DIR__ . '/mading/trans.php';
+
+    // c. Report (Laporan) -> URL: /admin/report/...
+    require __DIR__ . '/mading/report.php';
+
 });
