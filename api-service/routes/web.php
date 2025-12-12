@@ -12,6 +12,8 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
+$router->post('/auth/login', 'AuthController@login');
+
 // GROUP UTAMA MADING
 // URL Start: /v1/mading
 // Namespace Root: App\Http\Controllers\Mading

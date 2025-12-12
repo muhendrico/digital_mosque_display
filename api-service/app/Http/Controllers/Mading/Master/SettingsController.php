@@ -14,7 +14,7 @@ class SettingsController extends Controller
         $formatted = $data->pluck('value', 'key');
 
         if (isset($formatted['qr_infaq'])) {
-            $formatted['qr_infaq_url'] = 'http://localhost:8000/storage/' . $formatted['qr_infaq'];
+            $formatted['qr_infaq_url'] = 'http://localhost:8001/storage/' . $formatted['qr_infaq'];
         }
 
         return response()->json($formatted);
