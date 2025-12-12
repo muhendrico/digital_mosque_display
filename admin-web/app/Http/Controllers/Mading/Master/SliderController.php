@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Mading\Master;
 
+use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Slider;
@@ -11,71 +12,62 @@ class SliderController extends Controller
 {
     public function index()
     {
-        $sliders = Slider::orderBy('order', 'asc')->get();
-        return view('admin.mading.master.sliders', compact('sliders'));
+        // 1. Ambil Data Slider (Existing)
+        $slidersResponse = Http::get(env('API_MADING_URL') . '/master/sliders');
+        $sliders = $slidersResponse->successful() ? collect($slidersResponse->object()) : collect([]);
+    
+        // 2. TAMBAHAN: Ambil Data Artikel untuk Dropdown
+        $articlesResponse = Http::get(env('API_MADING_URL') . '/master/articles');
+        $articles = $articlesResponse->successful() ? collect($articlesResponse->json()) : collect([]);
+    
+        // 3. Kirim kedua variabel ke View
+        return view('admin.mading.master.sliders', compact('sliders', 'articles'));
     }
-
+    
     public function store(Request $request)
     {
-        $request->validate([
-            'title' => 'nullable|string|max:100',
-            'slider_type' => 'required|in:media,infaq', 
-        ]);
-    
-        $type = 'image';
-        $path = null;
-        $extraData = null;
+        // 1. Siapkan Request
+        $http = Http::asMultipart(); 
 
-        // A. SLIDE MEDIA BIASA
-        if ($request->slider_type == 'media') {
-            $request->validate(['image' => 'required|file|mimes:jpeg,png,jpg,mp4|max:20480']);
-            $file = $request->file('image');
-            $path = $file->store('sliders', 'public');
-            $mime = $file->getMimeType();
-            $type = explode('/', $mime)[0]; 
-        }
-        // B. SLIDE INFAQ / MOTIVASI (REVISI)
-        else if ($request->slider_type == 'infaq') {
-            $request->validate([
-                'quote' => 'required|string|max:500',
-                'bg_image' => 'nullable|image|mimes:jpeg,png,jpg|max:5048', 
-            ]);
-    
-            $type = 'infaq';
-            
-            // Cek Upload
-            if($request->hasFile('bg_image')){
-                // Simpan file user
-                $path = $request->file('bg_image')->store('sliders', 'public');
-            } else {
-                // Gunakan KODE ini untuk memanggil gambar default yang kita taruh di folder public tadi
-                $path = 'USE_DEFAULT_IMAGE'; 
-            }
-    
-            $extraData = ['quote' => $request->quote];
+        if ($request->hasFile('image')) {
+            $http->attach(
+                'image', 
+                file_get_contents($request->file('image')), 
+                $request->file('image')->getClientOriginalName()
+            );
         }
 
-        Slider::create([
-            'title' => $request->title,
-            'image_path' => $path, // Bisa null jika infaq tidak pakai gambar
-            'type' => $type,
-            'extra_data' => $extraData,
-            'is_active' => true
-        ]);
+        // 2. Kirim ke API
+        $response = $http->post(env('API_MADING_URL') . '/master/sliders', $request->except('image'));
+    
+        // 3. LOGIC PENGECEKAN (WAJIB)
+        if ($response->successful()) {
+            // SKENARIO SUKSES (Status 200/201)
+            return redirect()->route('admin.master.sliders.index')
+                ->with('success', 'Slider berhasil ditambahkan');
+        } else {
+            // SKENARIO GAGAL (Status 400, 422, 500)
+            $errors = $response->json()['errors'] ?? null;
+            $message = $response->json()['message'] ?? 'Gagal menyimpan data ke server.';
 
-        return redirect()->back()->with('success', 'Slide berhasil ditambahkan!');
+            return back()
+                ->withInput()          
+                ->withErrors($errors)   
+                ->with('error', $message); 
         }
+    }
 
     public function destroy($id)
     {
-        $slider = Slider::findOrFail($id);
-        
-        // Hapus file fisik dari storage
-        if(Storage::disk('public')->exists($slider->image_path)){
-            Storage::disk('public')->delete($slider->image_path);
+        $url = env('API_MADING_URL') . '/master/sliders/' . $id;
+        $response = Http::delete($url);
+
+        if ($response->successful()) {
+            return back()->with('success', 'Slider berhasil dihapus!');
+        } else {
+            // Ambil pesan error dari backend jika ada
+            $msg = $response->json()['message'] ?? 'Gagal menghapus slider.';
+            return back()->with('error', $msg);
         }
-        
-        $slider->delete();
-        return redirect()->back()->with('success', 'Gambar dihapus!');
     }
 }

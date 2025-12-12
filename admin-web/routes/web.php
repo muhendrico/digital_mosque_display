@@ -44,3 +44,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     require __DIR__ . '/mading/report.php';
 
 });
+
+// --- 3. Route Public ---
+Route::get('/{slug}', [App\Http\Controllers\Mading\Master\ArticleController::class, 'show'])
+    ->name('public.article.show');
