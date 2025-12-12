@@ -3,22 +3,34 @@
 @section('title', 'Kelola Slider')
 
 @section('content')
-<div class="container-fluid">
-    
-    @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    @endif
 
+@if(session('success'))
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+<div class="container-fluid">
     <div class="row">
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header p-0 pt-1 border-bottom-0">
                     <ul class="nav nav-tabs" id="custom-tabs" role="tablist">
-                        <li class="nav-item"><a class="nav-link active fw-bold" data-bs-toggle="pill" href="#tab-media"><i class="bi bi-images"></i> Media</a></li>
-                        <li class="nav-item"><a class="nav-link fw-bold" data-bs-toggle="pill" href="#tab-infaq"><i class="bi bi-chat-quote"></i> Motivasi Infaq</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link active fw-bold" data-bs-toggle="pill" href="#tab-media">
+                                <i class="bi bi-images"></i> Media
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-bold" data-bs-toggle="pill" href="#tab-infaq">
+                                <i class="bi bi-chat-quote"></i> Infaq
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-bold" data-bs-toggle="pill" href="#tab-article">
+                                <i class="bi bi-book"></i> Artikel
+                            </a>
+                        </li>
                     </ul>
                 </div>
                 
@@ -70,6 +82,42 @@
                             </form>
                         </div>
 
+                        <div class="tab-pane fade" id="tab-article">
+                            <form action="{{ route('admin.master.sliders.store') }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="slider_type" value="article">
+
+                                <div class="mb-3">
+                                    <label class="form-label text-white-50">Pilih Artikel</label>
+                                    <select name="article_id" class="form-select" id="articleSelector" required>
+                                        <option value="">-- Pilih Judul Artikel --</option>
+                                        @foreach($articles as $article)
+                                            <option value="{{ $article['id'] }}" data-title="{{ $article['title'] }}">
+                                                {{ $article['title'] }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label text-white-50">Judul Slide (Opsional)</label>
+                                    <input type="text" name="title" id="articleSlideTitle" class="form-control" placeholder="Otomatis mengikuti judul artikel">
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label text-white-50">Gambar Artikel</label>
+                                    <input type="file" name="image" class="form-control" accept="image/*">
+                                    <div class="form-text text-white-50 small mt-1">
+                                        <i class="bi bi-magic"></i> Biarkan kosong untuk menggunakan <strong>Gambar Artikel</strong> atau <strong>Default</strong>.
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-warning w-100 fw-bold text-dark">
+                                    <i class="bi bi-save"></i> Pasang Slide Artikel
+                                </button>
+                            </form>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -79,7 +127,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0"><i class="bi bi-list-check me-2"></i> Daftar Slider Aktif</h5>
-                    <span class="badge bg-info text-dark">{{ $sliders->count() }} Media</span>
+                    <span class="badge bg-info text-dark">{{ $sliders->count() }} Slide</span>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -99,10 +147,10 @@
                                     <td>
                                         <div class="ratio ratio-16x9 rounded overflow-hidden border border-secondary position-relative">
                                             
-                                            {{-- LOGIKA PREVIEW GAMBAR/VIDEO --}}
+                                            {{-- LOGIKA PREVIEW --}}
                                             @if($slider->type == 'video')
                                                 <video 
-                                                    src="{{ asset('storage/' . $slider->image_path) }}" 
+                                                    src="{{ $slider->image_url }}"
                                                     style="object-fit: cover; width: 100%; height: 100%;" 
                                                     muted loop onmouseover="this.play()" onmouseout="this.pause()"
                                                 ></video>
@@ -117,21 +165,25 @@
                                                 </div>
 
                                             @else
-                                                <img src="{{ asset('storage/' . $slider->image_path) }}" alt="Slider" style="object-fit: cover;">
+                                                <img src="{{ $slider->image_url }}" alt="Slider" style="object-fit: cover;">
                                             @endif
-
                                         </div>
                                     </td>
                                     <td>
                                         <div class="fw-bold">{{ $slider->title ?? '(Tanpa Judul)' }}</div>
                                         <div class="small text-white-50 text-uppercase mt-1" style="font-size: 0.75rem;">
+                                            
+                                            {{-- LOGIKA BADGE TIPE --}}
                                             @if($slider->type == 'infaq')
                                                 <span class="text-success"><i class="bi bi-chat-quote"></i> Motivasi Infaq</span>
+                                            @elseif($slider->type == 'article')
+                                                <span class="text-warning"><i class="bi bi-book"></i> Artikel / Kajian</span>
                                             @elseif($slider->type == 'video')
-                                                <span class="text-warning"><i class="bi bi-camera-video"></i> Video MP4</span>
+                                                <span class="text-danger"><i class="bi bi-camera-video"></i> Video MP4</span>
                                             @else
-                                                <span class="text-info"><i class="bi bi-image"></i> Gambar</span>
+                                                <span class="text-info"><i class="bi bi-image"></i> Gambar Media</span>
                                             @endif
+
                                         </div>
                                     </td>
                                     <td class="text-center">
@@ -160,6 +212,27 @@
     </div>
 </div>
 
+{{-- SCRIPT SEDERHANA UNTUK AUTO-FILL JUDUL --}}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var articleSelect = document.getElementById('articleSelector');
+        var titleInput = document.getElementById('articleSlideTitle');
+
+        if(articleSelect) {
+            articleSelect.addEventListener('change', function() {
+                // Ambil text dari option yang dipilih
+                var selectedText = articleSelect.options[articleSelect.selectedIndex].text;
+                // Hilangkan spasi berlebih
+                if(this.value !== "") {
+                    titleInput.value = selectedText.trim();
+                } else {
+                    titleInput.value = "";
+                }
+            });
+        }
+    });
+</script>
+
 <style>
     .text-white-50 { color: rgba(255, 255, 255, 0.7) !important; font-size: 0.9rem; font-weight: 500; }
     .form-control, .form-select {
@@ -172,6 +245,7 @@
         border-color: #00BFFF !important;
         box-shadow: 0 0 10px rgba(0, 191, 255, 0.3);
     }
+    .form-select option { background-color: #333; color: white; } /* Fix dropdown color on options */
     .input-group-text {
         background-color: rgba(0, 0, 0, 0.4) !important;
         border: 1px solid rgba(255, 255, 255, 0.2) !important;

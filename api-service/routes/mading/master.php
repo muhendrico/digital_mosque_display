@@ -7,12 +7,21 @@
 
 // --- Settings ---
 $router->get('settings', 'SettingsController@index');
-$router->put('settings/{id}', 'SettingsController@update'); // Butuh ID biasanya
-// Atau jika single row: $router->put('settings', 'SettingsController@update');
+$router->put('settings/{id}', 'SettingsController@update');
+// Route Public untuk Settings
+$router->get('/public/settings', 'SettingsController@getPublicSettings');
 
-// --- Sliders (CRUD Manual karena Lumen tidak punya Resource) ---
+// --- Sliders  ---
 $router->get('sliders', 'SliderController@index');
 $router->post('sliders', 'SliderController@store');
 $router->get('sliders/{id}', 'SliderController@show');
 $router->put('sliders/{id}', 'SliderController@update');
 $router->delete('sliders/{id}', 'SliderController@destroy');
+
+// Route Artikel (CRUD)
+$router->get('articles', 'ArticleController@index');
+$router->post('articles', 'ArticleController@store');
+$router->delete('articles/{id}', 'ArticleController@destroy');
+
+// Route Artikel Detail (Untuk Public/Web Frontend nanti)
+$router->get('articles/{slug}', 'ArticleController@show');
