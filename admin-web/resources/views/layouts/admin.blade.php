@@ -208,9 +208,12 @@
                 </li>
 
                 <li class="nav-item mt-5 pt-5">
-                    <a href="#" class="btn btn-outline-light w-100 d-flex align-items-center justify-content-center">
-                        <i class="bi bi-box-arrow-right me-2"></i> Logout
-                    </a>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-light w-100 d-flex align-items-center justify-content-center">
+                            <i class="bi bi-box-arrow-right me-2"></i> Logout
+                        </button>
+                    </form>
                 </li>
             </ul>
         </div>

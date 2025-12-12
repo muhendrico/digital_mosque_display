@@ -19,7 +19,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var string[]
      */
     protected $fillable = [
-        'name', 'email',
+        'name', 'email', 'password', // <--- WAJIB DITAMBAHKAN DISINI
+        // 'api_token' // (Opsional: Tambahkan juga jika Anda menggunakan kolom ini nanti)
     ];
 
     /**
@@ -28,6 +29,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var string[]
      */
     protected $hidden = [
-        'password',
+        'password', 'api_token',
     ];
 }
