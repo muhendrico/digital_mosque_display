@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Mading\Master;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -14,7 +14,7 @@ class SettingController extends Controller
         // Dari format baris database menjadi array: ['nama_masjid' => 'Nilai', ...]
         $settings = Setting::pluck('value', 'key');
         
-        return view('admin.settings', compact('settings'));
+        return view('admin.mading.master.settings', compact('settings'));
     }
 
     public function update(Request $request)

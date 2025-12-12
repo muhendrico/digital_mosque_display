@@ -12,7 +12,7 @@
     </div>
     @endif
 
-    <form action="{{ route('admin.settings.update') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('admin.master.settings.update') }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 

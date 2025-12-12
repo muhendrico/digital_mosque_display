@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Mading\Trans;
 
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;

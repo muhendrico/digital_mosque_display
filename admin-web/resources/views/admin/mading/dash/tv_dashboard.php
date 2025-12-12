@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>         
     <style>
         /* --- GLOBAL RESET --- */
         body { 
@@ -171,6 +171,74 @@
         .timer-text { position: absolute; font-size: 8rem; font-weight: bold; color: #fff; }
         .shaf-instruction { font-size: 2.5rem; color: #fff; background: rgba(212,175,55,0.2); padding: 10px 40px; border-radius: 50px; border: 1px solid #d4af37; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(212,175,55,0.4); } 70% { box-shadow: 0 0 0 20px rgba(212,175,55,0); } 100% { box-shadow: 0 0 0 0 rgba(212,175,55,0); } }
+        
+        /* --- OVERLAY ARTIKEL (SPLIT SCREEN) --- */
+        #overlay-article {
+            display: none; /* Default Hidden */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff; z-index: 60; /* Di atas overlay safe-zone biasa */
+            animation: fadeIn 0.8s ease;
+        }
+        
+        .art-container { display: flex; width: 100%; height: 100%; }
+        
+        /* Kolom Kiri: Gambar */
+        .art-left { 
+            width: 40%; position: relative; overflow: hidden; 
+            background: #000;
+        }
+        .art-left img { 
+            width: 100%; height: 100%; object-fit: cover; 
+            transition: transform 10s ease; transform: scale(1);
+        }
+        /* Efek Zoom in pelan pada gambar */
+        .art-zoom .art-left img { transform: scale(1.1); }
+
+        /* Kolom Kanan: Konten */
+        .art-right { 
+            width: 60%; padding: 140px 60px 180px 60px; /* Padding atas/bawah sesuaikan header/footer */
+            display: flex; flex-direction: column; justify-content: center;
+            color: #333; position: relative;
+        }
+
+        /* Agar Header Putih tetap terbaca di background putih, kita beri shadow atas */
+        .art-header-shadow {
+            position: absolute; top: 0; left: 0; width: 100%; height: 150px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+            z-index: 1; pointer-events: none;
+        }
+
+        .art-badge {
+            background: #d4af37; color: #000; padding: 5px 15px; 
+            border-radius: 20px; font-weight: 800; font-size: 1.2rem;
+            width: fit-content; margin-bottom: 20px; display: flex; align-items: center;
+        }
+        .art-title {
+            font-size: clamp(2.5rem, 5vh, 4rem); font-weight: 900; 
+            line-height: 1.1; margin-bottom: 30px; color: #2c3e50;
+        }
+        .art-summary {
+            font-size: clamp(1.2rem, 2.5vh, 1.8rem); line-height: 1.6; color: #555;
+            margin-bottom: 40px; text-align: justify;
+            border-left: 5px solid #d4af37; padding-left: 20px;
+        }
+        .art-qr-box {
+            display: flex; align-items: center; background: #f8f9fa;
+            padding: 15px; border-radius: 15px; width: fit-content;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 1px solid #eee;
+        }
+
+        /* Di dalam tag <style> */
+        #art-qr {
+            background-color: #ffffff; /* WAJIB PUTIH */
+            padding: 15px;             /* WAJIB ADA JARAK (Quiet Zone) */
+            border-radius: 8px;
+            display: inline-block;     /* Agar ukuran menyesuaikan konten */
+        }
+
+        #art-qr img {
+            display: block; /* Hilangkan gap bawah default image */
+        }
     </style>
 </head>
 <body>
@@ -214,6 +282,30 @@
             </div>
         </div>
 
+        <div id="overlay-article">
+            <div class="art-container">
+                <div class="art-left">
+                    <img id="art-img" src="">
+                </div>
+                
+                <div class="art-right">
+                    <div class="art-header-shadow"></div>
+
+                    <div class="art-badge"><i class="fas fa-newspaper me-2"></i> ARTIKEL / KAJIAN</div>
+                    <div id="art-title" class="art-title">Judul Artikel Disini</div>
+                    <div id="art-summary" class="art-summary">Ringkasan artikel...</div>
+                    
+                    <div class="art-qr-box">
+                        <div id="art-qr" style="background: #fff; padding: 5px; border-radius: 5px;"></div>
+                        <div class="ms-4">
+                            <div style="font-weight: 900; font-size: 1.2rem;">BACA SELENGKAPNYA</div>
+                            <div style="color: #777;">Scan QR Code dengan HP</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="ui-qris" class="qris-floating">
             <div class="qris-box"><img id="qris-img" src="" alt="QRIS"></div>
             <div class="qris-title">INFAQ SCAN QRIS</div>
@@ -251,6 +343,7 @@
 
     <script>
         const API_URL = 'http://localhost:8001';
+        const PUBLIC_URL = 'http://localhost:8000';
         let appSettings = {}, prayerTimes = {}, slidersData = [], financeData = {};
         let sliderIndex = 0; let rotationTimer = null;
         const formatRupiah = (n) => new Intl.NumberFormat('id-ID').format(n || 0);
@@ -262,9 +355,16 @@
             document.getElementById('date-masehi').innerText = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); 
         }, 1000);
 
+        // Helper untuk membuang tag HTML dari summary artikel
+        function stripHtml(html){
+            let tmp = document.createElement("DIV");
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || "";
+        }
+
         async function fetchAllData() {
             try {
-                const s = await fetch(`${API_URL}/settings`).then(r => r.json()); appSettings = s; 
+                const s = await fetch(`${API_URL}/v1/mading/master/settings`).then(r => r.json()); appSettings = s; 
                 safeText('masjid-name', s.nama_masjid); safeText('masjid-address', s.alamat); safeText('running-text', s.running_text);
                 if (s.qr_infaq_url) {
                     document.getElementById('ui-qris').style.display = 'block';
@@ -272,11 +372,11 @@
                     safeText('qris-bank', s.bank_info || '-');
                 } else { document.getElementById('ui-qris').style.display = 'none'; }
 
-                const p = await fetch(`${API_URL}/prayers`).then(r => r.json()); prayerTimes = p; updatePrayerUI(p);
-                const f = await fetch(`${API_URL}/finances`).then(r => r.json()); financeData = f;
+                const p = await fetch(`${API_URL}/v1/mading/dash/prayers`).then(r => r.json()); prayerTimes = p; updatePrayerUI(p);
+                const f = await fetch(`${API_URL}/v1/mading/trans/finances`).then(r => r.json()); financeData = f;
                 if(f) { safeText('fin-saldo', formatRupiah(f.saldo)); safeText('fin-masuk', formatRupiah(f.pemasukan_total)); safeText('fin-keluar', formatRupiah(f.pengeluaran_total)); }
                 
-                const sl = await fetch(`${API_URL}/sliders`).then(r => r.json());
+                const sl = await fetch(`${API_URL}/v1/mading/master/sliders`).then(r => r.json());
                 if(JSON.stringify(sl) !== JSON.stringify(slidersData)) {
                     slidersData = sl;
                     if(!window.rotationStarted && slidersData.length > 0) { window.rotationStarted = true; runSliderRotation(); }
@@ -309,24 +409,36 @@
         function runSliderRotation() {
             const bgImage = document.getElementById('bg-image');
             const bgVideo = document.getElementById('bg-video');
+            
+            // Overlays
             const ovFinance = document.getElementById('overlay-finance');
             const ovQuote = document.getElementById('overlay-quote');
-            const mainHeader = document.querySelector('.header-bar'); // Ambil element Header
+            const ovArticle = document.getElementById('overlay-article'); // NEW
+            
+            const mainHeader = document.querySelector('.header-bar'); 
 
             function nextSlide() {
                 if(rotationTimer) clearTimeout(rotationTimer);
+                
+                // Cek jika sedang mode Iqomah/Sholat, pause rotasi
                 if(document.getElementById('overlay-iqomah').style.display === 'flex' || document.getElementById('overlay-sholat').style.display === 'flex') {
-                    if(bgVideo) bgVideo.pause(); rotationTimer = setTimeout(nextSlide, 5000); return;
+                    if(bgVideo) bgVideo.pause(); 
+                    rotationTimer = setTimeout(nextSlide, 5000); return;
                 }
+                
+                // Reset State Slide Sebelumnya
                 if(bgVideo) bgVideo.onended = null; 
-
-                // Reset Display & Class Transparan
                 ovFinance.style.display = 'none';
                 ovQuote.style.display = 'none';
-                mainHeader.classList.remove('seamless-mode'); // Hapus class transparan
+                ovArticle.style.display = 'none'; // Reset Artikel
+                ovArticle.classList.remove('art-zoom');
+                
+                mainHeader.classList.remove('seamless-mode'); // Reset Header Normal
 
                 if (sliderIndex < slidersData.length) {
                     const slide = slidersData[sliderIndex];
+                    
+                    // --- TIPE 1: INFAQ / QUOTE ---
                     if (slide.type === 'infaq') {
                         if(bgVideo) { bgVideo.pause(); bgVideo.classList.remove('media-active'); }
                         
@@ -343,34 +455,105 @@
                         }
                         
                         ovQuote.style.display = 'flex';
-                        mainHeader.classList.add('seamless-mode'); // JADIKAN HEADER TRANSPARAN
+                        mainHeader.classList.add('seamless-mode'); 
 
                         sliderIndex++;
                         rotationTimer = setTimeout(() => { 
                             ovQuote.style.display = 'none'; 
-                            mainHeader.classList.remove('seamless-mode'); // KEMBALIKAN HEADER NORMAL
+                            mainHeader.classList.remove('seamless-mode'); 
                             bgImage.style.filter = "none"; 
                             nextSlide(); 
-                        }, 15000);
+                        }, 10000);
 
-                    } else if (slide.type === 'video') {
+                    } 
+                    // --- TIPE 2: ARTIKEL (BARU) ---
+                    else if (slide.type === 'article') {
+                        if(bgVideo) { bgVideo.pause(); bgVideo.classList.remove('media-active'); }
+                         
+                        // 1. Setup Gambar Artikel
+                        const articleData = slide.article || {};
+
+                        // LOGIC BARU: Prioritaskan gambar dari ARTIKEL dulu
+                        let artImgUrl = "";
+
+                        if (articleData.image_url) {
+                            // Jika backend sudah menyediakan accessor lengkap (seperti di JSON Anda)
+                            artImgUrl = articleData.image_url; 
+                        } else if (articleData.image) {
+                            // Fallback manual jika accessor belum ada
+                            artImgUrl = `${API_URL}/storage/${articleData.image}`;
+                        } else {
+                            // Terakhir baru cek slider image (siapa tahu ada custom cover)
+                            // TAPI pastikan bukan 'USE_DEFAULT_IMAGE'
+                            if (slide.image_url && !slide.image_url.includes('USE_DEFAULT')) {
+                                artImgUrl = slide.image_url;
+                            }
+                        }
+                         
+                        document.getElementById('art-img').src = artImgUrl || 'https://via.placeholder.com/800x600?text=No+Image';
+                        
+                        // 2. Setup Teks
+                        safeText('art-title', articleData.title || slide.title);
+                        // Potong summary max 250 karakter
+                        let summary = stripHtml(articleData.content || "");
+                        if(summary.length > 250) summary = summary.substring(0, 250) + "...";
+                        safeText('art-summary', summary);
+
+                        // 3. Generate QR Code
+                         
+                        const qrContainer = document.getElementById("art-qr");
+                        qrContainer.innerHTML = ""; // Bersihkan QR lama
+
+                        if(articleData.slug) {
+                            // Generate QR
+                            new QRCode(qrContainer, {
+                                text: `${PUBLIC_URL}/${articleData.slug}`, // URL Artikel (Tanpa /article/ jika route di root)
+                                width: 150,  // PERBESAR UKURAN (Tadi 100, sekarang 150)
+                                height: 150,
+                                colorDark : "#000000", // Hitam Pekat
+                                colorLight : "#ffffff", // Putih Bersih
+                                correctLevel : QRCode.CorrectLevel.M // Level koreksi kesalahan Medium
+                            });
+                        }
+
+                         // 4. Tampilkan Overlay
+                         ovArticle.style.display = 'block';
+                         // Efek zoom in pelan
+                         setTimeout(() => ovArticle.classList.add('art-zoom'), 100);
+                         
+                         // Header tetap normal (background gelap) karena Artikel backgroundnya putih,
+                         // tapi kita sudah kasih .art-header-shadow agar tulisan putih header terbaca.
+                         mainHeader.classList.add('seamless-mode'); // Biar shadow bawaan header tidak double
+
+                         sliderIndex++;
+                         rotationTimer = setTimeout(() => {
+                             ovArticle.style.display = 'none';
+                             mainHeader.classList.remove('seamless-mode');
+                             nextSlide();
+                         }, 20000); // Tampil 20 detik agar sempat baca/scan
+                    }
+                    // --- TIPE 3: VIDEO ---
+                    else if (slide.type === 'video') {
                         bgImage.classList.remove('media-active');
                         bgVideo.src = slide.image_url; bgVideo.classList.add('media-active'); bgVideo.play().catch(e=>{});
                         bgVideo.onended = function() { sliderIndex++; nextSlide(); };
-                    } else {
+                    } 
+                    // --- TIPE 4: GAMBAR BIASA ---
+                    else {
                         if(bgVideo) { bgVideo.pause(); bgVideo.classList.remove('media-active'); }
                         bgImage.src = slide.image_url; bgImage.classList.add('media-active'); bgImage.style.filter = "none";
                         sliderIndex++; rotationTimer = setTimeout(nextSlide, 10000);
                     }
                 } else {
+                    // Loop Selesai, Tampilkan Finance Sebentar
                     if(bgVideo) { bgVideo.pause(); bgVideo.classList.remove('media-active'); }
                     if(financeData && financeData.saldo) {
                         ovFinance.style.display = 'flex';
-                        mainHeader.classList.add('seamless-mode'); // JADIKAN HEADER TRANSPARAN
+                        mainHeader.classList.add('seamless-mode');
                         sliderIndex = 0; 
                         rotationTimer = setTimeout(() => { 
                             ovFinance.style.display = 'none'; 
-                            mainHeader.classList.remove('seamless-mode'); // KEMBALIKAN
+                            mainHeader.classList.remove('seamless-mode'); 
                             nextSlide(); 
                         }, 10000);
                     } else { sliderIndex = 0; nextSlide(); }

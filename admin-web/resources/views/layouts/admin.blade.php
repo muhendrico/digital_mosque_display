@@ -154,6 +154,8 @@
         .stat-card.purple { background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(157, 80, 255, 0.2)); }
         .stat-card.blue { background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0, 191, 255, 0.2)); }
         .stat-card.green { background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(46, 204, 113, 0.2)); }
+    
+        @yield('css');
     </style>
 </head>
 
@@ -172,22 +174,29 @@
                 </li>
 
                 <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('admin.settings') ? 'active' : '' }}"
-                        href="{{ route('admin.settings') }}">
+                    <a class="nav-link {{ request()->routeIs('admin.master.settings*') ? 'active' : '' }}"
+                        href="{{ route('admin.master.settings.index') }}">
                         <i class="bi bi-gear-fill me-2"></i> Pengaturan
                     </a>
                 </li>
 
                 <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('admin.sliders*') ? 'active' : '' }}"
-                        href="{{ route('admin.sliders') }}">
+                    <a class="nav-link {{ request()->routeIs('admin.master.sliders*') ? 'active' : '' }}"
+                        href="{{ route('admin.master.sliders.index') }}">
                         <i class="bi bi-images me-2"></i> Slider Gambar
                     </a>
                 </li>
 
                 <li class="nav-item mb-2">
-                    <a class="nav-link {{ request()->routeIs('admin.finances*') ? 'active' : '' }}"
-                        href="{{ route('admin.finances') }}">
+                    <a class="nav-link {{ request()->routeIs('admin.master.articles*') ? 'active' : '' }}"
+                        href="{{ route('admin.master.articles.index') }}">
+                        <i class="bi bi-book-half me-2"></i> Artikel
+                    </a>
+                </li>
+
+                <li class="nav-item mb-2">
+                    <a class="nav-link {{ request()->routeIs('admin.trans.finances*') ? 'active' : '' }}"
+                        href="{{ route('admin.trans.finances.index') }}">
                         <i class="bi bi-wallet2 me-2"></i> Laporan Kas
                     </a>
                 </li>
@@ -227,6 +236,8 @@
                 }
             });
         });
+
+        @yield('js')
     </script>
 </body>
 </html>
