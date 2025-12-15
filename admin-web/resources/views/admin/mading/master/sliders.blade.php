@@ -44,7 +44,7 @@
                                 
                                 <div class="mb-3">
                                     <label class="form-label text-white-50">Judul Slide</label>
-                                    <input type="text" name="title" class="form-control" placeholder="Contoh: Kegiatan Jumat">
+                                    <input type="text" name="title" class="form-control" placeholder="Contoh: Kegiatan Jumat" required>
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label text-white-50">File (Gambar/Video)</label>
