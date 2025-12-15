@@ -13,10 +13,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
 
     <style>
         body {
@@ -35,7 +32,7 @@
             color: white;
             box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
             padding: 0; box-sizing: border-box;
-            width: 250px; flex-shrink: 0;
+            width: 250px; flex-shrink: 0; z-index: 1000;
         }
 
         .sidebar h4 {
@@ -68,7 +65,7 @@
         
         .sidebar .nav-link.active i { color: #2D0B42; }
 
-        .content-area { margin-left: 250px; flex-grow: 1; padding: 25px; }
+        .content-area { margin-left: 250px; flex-grow: 1; padding: 25px; width: calc(100% - 250px); }
 
         /* Custom Card Style agar transparan */
         .card {
@@ -81,12 +78,34 @@
         .card-title { margin: 0; font-weight: 700; }
 
         /* Custom Table Style */
-        .table { color: #ffffff; border-color: rgba(255, 255, 255, 0.3); }
-        .table th, .table td { border-color: rgba(255, 255, 255, 0.3); background-color: transparent; color: white; }
+        .table { color: #ffffff; border-color: rgba(255, 255, 255, 0.3); width: 100% !important; }
+        .table th, .table td { border-color: rgba(255, 255, 255, 0.3); background-color: transparent; color: white; vertical-align: middle; }
         .table-striped tbody tr:nth-of-type(odd) { background-color: rgba(255, 255, 255, 0.05); }
         .table-hover tbody tr:hover { background-color: rgba(255, 255, 255, 0.15); }
 
-        /* Form Controls (Input) agar terlihat bagus di background gelap */
+        /* Form Controls DataTables (Agar Search & Entries Rapi) */
+        .dataTables_wrapper .dataTables_length select,
+        .dataTables_wrapper .dataTables_filter input {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 5px;
+            padding: 5px 10px;
+        }
+        .dataTables_wrapper .dataTables_length label,
+        .dataTables_wrapper .dataTables_filter label, 
+        .dataTables_wrapper .dataTables_info, 
+        .dataTables_wrapper .dataTables_paginate {
+            color: white !important;
+            margin-bottom: 15px; /* Jarak antara search dan tabel */
+        }
+        
+        /* Pagination Buttons */
+        .page-item .page-link { background: transparent; border-color: rgba(255,255,255,0.3); color: white; }
+        .page-item.active .page-link { background-color: #00BFFF; border-color: #00BFFF; color: #000; }
+        .page-item.disabled .page-link { color: rgba(255,255,255,0.4); }
+
+        /* Form Controls (Input Umum) */
         .form-control {
             background-color: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -102,58 +121,6 @@
         .btn-primary { background-color: #00BFFF; border-color: #00BFFF; color: #2D0B42; font-weight: 600; }
         .btn-primary:hover { background-color: #00A3D9; border-color: #00A3D9; }
         .btn-danger { background-color: #dc3545; border-color: #dc3545; color: white; }
-
-        /* --- TAMBAHAN STYLE UNTUK DASHBOARD WIDGET --- */
-        
-        /* Mengubah kotak statistik menjadi style Glassmorphism */
-        .stat-card {
-            background: rgba(255, 255, 255, 0.1); /* Transparan */
-            border: 1px solid rgba(255, 255, 255, 0.2); /* Border halus */
-            border-radius: 20px; /* Sudut sangat membulat */
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.3s ease, background 0.3s ease;
-            backdrop-filter: blur(5px); /* Efek blur di belakangnya */
-            color: white;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px); /* Efek naik saat dihover */
-            background: rgba(255, 255, 255, 0.2); /* Lebih terang saat hover */
-            border-color: rgba(255, 255, 255, 0.5);
-        }
-
-        .stat-icon {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 3rem;
-            opacity: 0.3; /* Ikon transparan */
-            color: white;
-        }
-
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 5px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .stat-label {
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0.8;
-            font-weight: 600;
-        }
-        
-        /* Warna spesifik untuk variasi (opsional, jika ingin beda warna dikit) */
-        .stat-card.purple { background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(157, 80, 255, 0.2)); }
-        .stat-card.blue { background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0, 191, 255, 0.2)); }
-        .stat-card.green { background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(46, 204, 113, 0.2)); }
     
         @yield('css');
     </style>
@@ -229,18 +196,13 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <script>
-        $(document).ready(function () {
-            $('.table').DataTable({
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json"
-                }
-            });
-        });
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
-        @yield('js')
-    </script>
+    @yield('js')
 </body>
 </html>

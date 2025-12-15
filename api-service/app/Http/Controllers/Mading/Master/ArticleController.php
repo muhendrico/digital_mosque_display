@@ -41,15 +41,76 @@ class ArticleController extends Controller
         return response()->json($article);
     }
 
-    public function show($slug)
+    public function update(Request $request, $id)
     {
-        // Cari artikel berdasarkan slug
-        $article = Article::where('slug', $slug)->first();
-
+        // 1. Cari Artikel
+        $article = Article::find($id);
         if (!$article) {
             return response()->json(['message' => 'Artikel tidak ditemukan'], 404);
         }
 
+        // 2. Validasi (Judul wajib, Gambar Opsional karena mungkin tidak diganti)
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string|max:255',
+            'content' => 'required',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048' // Nullable
+        ]);
+
+        try {
+            // 3. Logic Update Gambar
+            $currentImage = $article->image;
+
+            if ($request->hasFile('image')) {
+                // Hapus gambar lama jika ada (dan bukan default)
+                if ($currentImage && Storage::disk('public')->exists($currentImage)) {
+                    Storage::disk('public')->delete($currentImage);
+                }
+                // Upload gambar baru
+                $currentImage = $request->file('image')->store('articles', 'public');
+            }
+
+            // 4. Update Database
+            $article->update([
+                'title' => $request->title,
+                // Update slug jika judul berubah (opsional, tapi disarankan)
+                'slug' => Str::slug($request->title) . '-' . time(),
+                'content' => $request->content,
+                'image' => $currentImage
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Artikel berhasil diperbarui',
+                'data' => $article
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Gagal update: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function show($id)
+    {
+        $article = Article::find($id);
+        if (!$article) return response()->json(['message' => 'Not Found'], 404);
+        
+        // Inject URL gambar
+        $article->image_url = $article->image ? url('storage/' . $article->image) : null;
+        
+        return response()->json($article);
+    }
+    
+    // Method BARU untuk Public (Cari by Slug)
+    public function getBySlug($slug)
+    {
+        $article = Article::where('slug', $slug)->first();
+        
+        if (!$article) {
+            return response()->json(['message' => 'Artikel tidak ditemukan'], 404);
+        }
+    
+        $article->image_url = $article->image ? url('storage/' . $article->image) : null;
+    
         return response()->json($article);
     }
 

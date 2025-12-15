@@ -22,6 +22,13 @@ $router->delete('sliders/{id}', 'SliderController@destroy');
 $router->get('articles', 'ArticleController@index');
 $router->post('articles', 'ArticleController@store');
 $router->delete('articles/{id}', 'ArticleController@destroy');
+$router->post('/articles/{id}/update', 'ArticleController@update');
 
-// Route Artikel Detail (Untuk Public/Web Frontend nanti)
-$router->get('articles/{slug}', 'ArticleController@show');
+// // Route Artikel Detail (Untuk Public/Web Frontend)
+// $router->get('articles/{slug}', 'ArticleController@show');
+
+// Endpoint untuk ADMIN (Cari berdasarkan ID)
+$router->get('/articles/{id:[0-9]+}', 'ArticleController@show');
+
+// Endpoint untuk PUBLIC (Cari berdasarkan SLUG)
+$router->get('/articles/slug/{slug}', 'ArticleController@getBySlug');

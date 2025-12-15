@@ -15,6 +15,6 @@ Route::prefix('master')->name('master.')->group(function () {
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
     
     // Articles
-    Route::get('/articles/{slug}', [ArticleController::class, 'show'])->name('articles.show');
     Route::resource('articles', ArticleController::class);
+    Route::get('/articles/{slug}', [ArticleController::class, 'show'])->name('articles.show');
 });

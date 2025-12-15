@@ -1,8 +1,9 @@
 @extends('layouts.admin')
 
-@section('title', 'Tulis Artikel Baru')
+@section('title', 'Edit Artikel')
 
 @section('content')
+{{-- 1. CSS SUMMERNOTE (Tetap di sini tidak masalah) --}}
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
 <style>
     /* RESET WARNA PAKSA */
@@ -27,13 +28,14 @@
     <div class="row justify-content-center">
         <div class="col-lg-10">
             
-            <form action="{{ route('admin.master.articles.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin.master.articles.update', $article->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
+                @method('PUT') 
                 
                 <div class="card shadow" style="background-color: #fff;">
                     <div class="card-header bg-white border-bottom py-3">
                         <h5 class="mb-0 fw-bold text-dark">
-                            <i class="bi bi-pencil-square me-2"></i> Tulis Artikel Baru
+                            <i class="bi bi-pencil-fill me-2"></i> Edit Artikel
                         </h5>
                     </div>
 
@@ -43,7 +45,8 @@
                                 <div class="mb-3">
                                     <label class="form-label fw-bold text-dark">Judul Artikel</label>
                                     <input type="text" name="title" 
-                                        class="form-control @error('title') is-invalid @enderror"  
+                                        class="form-control @error('title') is-invalid @enderror" 
+                                        value="{{ old('title', $article->title) }}" 
                                         required style="color: #000 !important;">
 
                                     @error('title')
@@ -55,6 +58,11 @@
 
                                 <div class="mb-3">
                                     <label class="form-label fw-bold text-dark">Isi Konten</label>
+                                    
+                                    {{-- BUFFER TEXTAREA: Menampung data asli dari DB --}}
+                                    <textarea id="buffer-content" style="display: none;">{!! old('content', $article->content) !!}</textarea>
+
+                                    {{-- Tambahkan class is-invalid --}}
                                     <textarea id="summernote" name="content" class="form-control @error('content') is-invalid @enderror"></textarea>
 
                                     {{-- Pesan Error --}}
@@ -67,18 +75,22 @@
                             </div>
 
                             <div class="col-md-4">
+                                {{-- SIDEBAR GAMBAR --}}
                                 <div class="card bg-light border-0 mb-3">
                                     <div class="card-body">
-                                        <label class="form-label fw-bold text-dark">Gambar Sampul</label>
+                                        <label class="form-label fw-bold text-dark">Gambar Artikel</label>
                                         
                                         <div class="image-preview-box mb-3" onclick="document.getElementById('imageInput').click()">
-                                            <div id="placeholderText" class="text-center text-secondary">
+                                            <div id="placeholderText" class="text-center text-secondary" 
+                                                 style="{{ $article->image ? 'display:none;' : '' }}">
                                                 <i class="bi bi-cloud-arrow-up display-4"></i>
-                                                <div class="mt-2 small">Klik upload gambar</div>
+                                                <div class="mt-2 small">Klik ganti gambar</div>
                                             </div>
-                                            <img id="previewImage" src="#" alt="Preview">
+                                            <img id="previewImage" src="{{ $article->image_url ?? '#' }}" 
+                                                 alt="Preview" style="{{ $article->image ? 'display:block;' : 'display:none;' }}">
                                         </div>
                                         
+                                        {{-- Input File: Tambahkan is-invalid --}}
                                         <input type="file" name="image" id="imageInput" class="d-none @error('image') is-invalid @enderror" accept="image/*" onchange="previewFile(this)">
                                         
                                         {{-- Pesan Error Gambar --}}
@@ -87,24 +99,25 @@
                                                 {{ $message }}
                                             </div>
                                         @enderror
+                                        <small class="text-muted">*Biarkan kosong jika tidak ingin mengganti gambar.</small>
                                     </div>
                                 </div>
 
                                 <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-primary fw-bold">Publikasikan</button>
-                                    <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">Batal</a>
+                                    <button type="submit" class="btn btn-primary fw-bold">Simpan Perubahan</button>
+                                    <a href="{{ route('admin.master.articles.index') }}" class="btn btn-outline-secondary">Batal</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </form>
         </div>
     </div>
 </div>
 @endsection
 
+{{-- PENTING: Pindahkan JS ke Section JS agar dimuat SETELAH jQuery Layout --}}
 @section('js')
 {{-- HAPUS JQUERY DARI SINI (Karena sudah ada di Layout Admin) --}}
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
@@ -124,6 +137,10 @@
                 ['view', ['fullscreen', 'help']]
             ]
         });
+
+        // 2. INJECT CONTENT DARI BUFFER
+        var content = $('#buffer-content').val(); 
+        $('#summernote').summernote('code', content);
     });
 
     // Fungsi Preview Gambar
