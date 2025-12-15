@@ -108,7 +108,7 @@
                             
                             @if(isset($settings['qr_infaq']))
                                 <div class="bg-white p-2 d-inline-block rounded mb-3">
-                                    <img src="{{ asset('storage/'.$settings['qr_infaq']) }}" width="150" class="img-fluid">
+                                    <img src="{{ $path_img }}" width="150" class="img-fluid">
                                 </div>
                             @else
                                 <div class="text-white-50 fst-italic mb-3 border p-3 rounded d-inline-block">Belum ada QRIS</div>

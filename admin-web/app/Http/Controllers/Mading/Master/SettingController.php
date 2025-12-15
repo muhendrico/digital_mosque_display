@@ -13,8 +13,9 @@ class SettingController extends Controller
         // Ambil data settings dan ubah formatnya biar mudah dipanggil di View
         // Dari format baris database menjadi array: ['nama_masjid' => 'Nilai', ...]
         $settings = Setting::pluck('value', 'key');
-        
-        return view('admin.mading.master.settings', compact('settings'));
+        $path_img = env('API_PATH_URL') . '/' . $settings['qr_infaq'];
+
+        return view('admin.mading.master.settings', compact('settings', 'path_img'));
     }
 
     public function update(Request $request)
