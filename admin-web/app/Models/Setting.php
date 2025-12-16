@@ -9,6 +9,5 @@ class Setting extends Model
 {
     use HasFactory;
     
-    // Karena tabel kita isinya key-value, kita tidak butuh timestamp updated_at otomatis di setiap baris (opsional)
     protected $fillable = ['key', 'value'];
 }

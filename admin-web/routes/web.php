@@ -22,7 +22,6 @@ Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->
 
 // --- 3. GROUP ADMIN ---
 // Akses: http://localhost:8000/admin/...
-// Gunakan ->name('admin.') dengan titik di akhir
 Route::prefix('admin')
     ->name('admin.') // Prefix nama route
     ->middleware(['admin.auth'])
@@ -31,10 +30,6 @@ Route::prefix('admin')
         Route::get('/', function () {
             return view('admin.mading.dash.admin_dashboard');
         })->name('dashboard'); 
-        // Hasil: admin.dashboard
-
-    // --- LOAD ROUTE MODULAR ---
-    // Kita panggil file-file route yang ada di folder routes/mading/
     
     // a. Master Data (Sliders, Settings) -> URL: /admin/master/...
     require __DIR__ . '/mading/master.php';

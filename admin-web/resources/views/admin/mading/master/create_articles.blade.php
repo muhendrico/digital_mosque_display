@@ -5,7 +5,6 @@
 @section('content')
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
 <style>
-    /* RESET WARNA PAKSA */
     .form-control, .form-select, input[type="text"], textarea {
         background-color: #ffffff !important;
         color: #000000 !important;
@@ -57,7 +56,6 @@
                                     <label class="form-label fw-bold text-dark">Isi Konten</label>
                                     <textarea id="summernote" name="content" class="form-control @error('content') is-invalid @enderror"></textarea>
 
-                                    {{-- Pesan Error --}}
                                     @error('content')
                                         <div class="text-danger small mt-1">
                                             {{ $message }}
@@ -81,7 +79,6 @@
                                         
                                         <input type="file" name="image" id="imageInput" class="d-none @error('image') is-invalid @enderror" accept="image/*" onchange="previewFile(this)">
                                         
-                                        {{-- Pesan Error Gambar --}}
                                         @error('image')
                                             <div class="text-danger small mt-2 d-block">
                                                 {{ $message }}
@@ -106,7 +103,6 @@
 @endsection
 
 @section('js')
-{{-- HAPUS JQUERY DARI SINI (Karena sudah ada di Layout Admin) --}}
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 
 <script>

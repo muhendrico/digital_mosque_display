@@ -97,7 +97,6 @@
 
     <div class="article-container">
         
-        {{-- HEADER --}}
         <div class="article-header">
             <h1 class="article-title">{{ $article->title }}</h1>
             
@@ -108,7 +107,6 @@
             </div>
         </div>
 
-        {{-- GAMBAR UTAMA --}}
         @if($article->image)
             @php
                  $imgUrl = $article->image_url ?? env('API_URL').'/storage/'.$article->image;
@@ -118,7 +116,6 @@
             </div>
         @endif
 
-        {{-- ISI ARTIKEL --}}
         <div class="article-content">
             {!! $article->content !!}
         </div>

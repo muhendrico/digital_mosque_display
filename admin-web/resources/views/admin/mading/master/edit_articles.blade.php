@@ -59,13 +59,10 @@
                                 <div class="mb-3">
                                     <label class="form-label fw-bold text-dark">Isi Konten</label>
                                     
-                                    {{-- BUFFER TEXTAREA: Menampung data asli dari DB --}}
                                     <textarea id="buffer-content" style="display: none;">{!! old('content', $article->content) !!}</textarea>
 
-                                    {{-- Tambahkan class is-invalid --}}
                                     <textarea id="summernote" name="content" class="form-control @error('content') is-invalid @enderror"></textarea>
 
-                                    {{-- Pesan Error --}}
                                     @error('content')
                                         <div class="text-danger small mt-1">
                                             {{ $message }}
@@ -75,7 +72,6 @@
                             </div>
 
                             <div class="col-md-4">
-                                {{-- SIDEBAR GAMBAR --}}
                                 <div class="card bg-light border-0 mb-3">
                                     <div class="card-body">
                                         <label class="form-label fw-bold text-dark">Gambar Artikel</label>
@@ -90,10 +86,8 @@
                                                  alt="Preview" style="{{ $article->image ? 'display:block;' : 'display:none;' }}">
                                         </div>
                                         
-                                        {{-- Input File: Tambahkan is-invalid --}}
                                         <input type="file" name="image" id="imageInput" class="d-none @error('image') is-invalid @enderror" accept="image/*" onchange="previewFile(this)">
                                         
-                                        {{-- Pesan Error Gambar --}}
                                         @error('image')
                                             <div class="text-danger small mt-2 d-block">
                                                 {{ $message }}
@@ -117,9 +111,7 @@
 </div>
 @endsection
 
-{{-- PENTING: Pindahkan JS ke Section JS agar dimuat SETELAH jQuery Layout --}}
 @section('js')
-{{-- HAPUS JQUERY DARI SINI (Karena sudah ada di Layout Admin) --}}
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 
 <script>

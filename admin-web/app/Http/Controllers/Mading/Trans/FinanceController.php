@@ -10,10 +10,8 @@ class FinanceController extends Controller
 {
     public function index()
     {
-        // Ambil data urut dari yang terbaru
         $finances = Finance::orderBy('transaction_date', 'desc')->get();
         
-        // Hitung Saldo
         $pemasukan = Finance::where('type', 'pemasukan')->sum('amount');
         $pengeluaran = Finance::where('type', 'pengeluaran')->sum('amount');
         $saldo = $pemasukan - $pengeluaran;

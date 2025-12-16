@@ -147,7 +147,6 @@
                                     <td>
                                         <div class="ratio ratio-16x9 rounded overflow-hidden border border-secondary position-relative">
                                             
-                                            {{-- LOGIKA PREVIEW --}}
                                             @if($slider->type == 'video')
                                                 <video 
                                                     src="{{ $slider->image_url }}"
@@ -173,7 +172,6 @@
                                         <div class="fw-bold">{{ $slider->title ?? '(Tanpa Judul)' }}</div>
                                         <div class="small text-white-50 text-uppercase mt-1" style="font-size: 0.75rem;">
                                             
-                                            {{-- LOGIKA BADGE TIPE --}}
                                             @if($slider->type == 'infaq')
                                                 <span class="text-success"><i class="bi bi-chat-quote"></i> Motivasi Infaq</span>
                                             @elseif($slider->type == 'article')
@@ -212,7 +210,6 @@
     </div>
 </div>
 
-{{-- SCRIPT SEDERHANA UNTUK AUTO-FILL JUDUL --}}
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         var articleSelect = document.getElementById('articleSelector');
@@ -220,9 +217,8 @@
 
         if(articleSelect) {
             articleSelect.addEventListener('change', function() {
-                // Ambil text dari option yang dipilih
                 var selectedText = articleSelect.options[articleSelect.selectedIndex].text;
-                // Hilangkan spasi berlebih
+                
                 if(this.value !== "") {
                     titleInput.value = selectedText.trim();
                 } else {

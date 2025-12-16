@@ -473,18 +473,13 @@
                         // 1. Setup Gambar Artikel
                         const articleData = slide.article || {};
 
-                        // LOGIC BARU: Prioritaskan gambar dari ARTIKEL dulu
                         let artImgUrl = "";
 
                         if (articleData.image_url) {
-                            // Jika backend sudah menyediakan accessor lengkap (seperti di JSON Anda)
                             artImgUrl = articleData.image_url; 
                         } else if (articleData.image) {
-                            // Fallback manual jika accessor belum ada
                             artImgUrl = `${API_URL}/storage/${articleData.image}`;
                         } else {
-                            // Terakhir baru cek slider image (siapa tahu ada custom cover)
-                            // TAPI pastikan bukan 'USE_DEFAULT_IMAGE'
                             if (slide.image_url && !slide.image_url.includes('USE_DEFAULT')) {
                                 artImgUrl = slide.image_url;
                             }
@@ -494,7 +489,7 @@
                         
                         // 2. Setup Teks
                         safeText('art-title', articleData.title || slide.title);
-                        // Potong summary max 250 karakter
+                        
                         let summary = stripHtml(articleData.content || "");
                         if(summary.length > 250) summary = summary.substring(0, 250) + "...";
                         safeText('art-summary', summary);
@@ -507,30 +502,28 @@
                         if(articleData.slug) {
                             // Generate QR
                             new QRCode(qrContainer, {
-                                text: `${PUBLIC_URL}/${articleData.slug}`, // URL Artikel (Tanpa /article/ jika route di root)
-                                width: 150,  // PERBESAR UKURAN (Tadi 100, sekarang 150)
+                                text: `${PUBLIC_URL}/${articleData.slug}`,
+                                width: 150,  
                                 height: 150,
-                                colorDark : "#000000", // Hitam Pekat
-                                colorLight : "#ffffff", // Putih Bersih
-                                correctLevel : QRCode.CorrectLevel.M // Level koreksi kesalahan Medium
+                                colorDark : "#000000", 
+                                colorLight : "#ffffff",
+                                correctLevel : QRCode.CorrectLevel.M 
                             });
                         }
 
                          // 4. Tampilkan Overlay
                          ovArticle.style.display = 'block';
-                         // Efek zoom in pelan
+                         
                          setTimeout(() => ovArticle.classList.add('art-zoom'), 100);
                          
-                         // Header tetap normal (background gelap) karena Artikel backgroundnya putih,
-                         // tapi kita sudah kasih .art-header-shadow agar tulisan putih header terbaca.
-                         mainHeader.classList.add('seamless-mode'); // Biar shadow bawaan header tidak double
+                         mainHeader.classList.add('seamless-mode'); 
 
                          sliderIndex++;
                          rotationTimer = setTimeout(() => {
                              ovArticle.style.display = 'none';
                              mainHeader.classList.remove('seamless-mode');
                              nextSlide();
-                         }, 20000); // Tampil 20 detik agar sempat baca/scan
+                         }, 20000);
                     }
                     // --- TIPE 3: VIDEO ---
                     else if (slide.type === 'video') {
@@ -545,7 +538,6 @@
                         sliderIndex++; rotationTimer = setTimeout(nextSlide, 10000);
                     }
                 } else {
-                    // Loop Selesai, Tampilkan Finance Sebentar
                     if(bgVideo) { bgVideo.pause(); bgVideo.classList.remove('media-active'); }
                     if(financeData && financeData.saldo) {
                         ovFinance.style.display = 'flex';

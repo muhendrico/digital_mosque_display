@@ -13,12 +13,12 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f4f6f8; /* Abu-abu sangat muda (Background Web) */
+            background-color: #f4f6f8; 
             color: #333;
             margin: 0; padding: 0;
         }
 
-        /* Navbar Sederhana (Opsional) */
+        /* Navbar Sederhana */
         .public-navbar {
             background: #fff;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
@@ -48,29 +48,20 @@
     <nav class="public-navbar">
         <div class="container d-flex justify-content-between align-items-center">
             <a href="#" class="navbar-brand">
-                <i class="bi bi-building me-2"></i> 
-                {{-- Panggil Dinamis --}}
+                <i class="bi bi-building me-2"></i>
                 {{ $settings['nama_masjid'] ?? 'Masjid Raya' }}
-            </a>
-            
-            {{-- Tombol Login Admin (Opsional) --}}
-            <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm rounded-pill">
-                <i class="bi bi-person-lock"></i> Login
             </a>
         </div>
     </nav>
 
-    {{-- Content Area --}}
     <div class="container">
         @yield('content')
     </div>
 
-    {{-- Footer --}}
     <footer class="public-footer">
         <div class="container">
             <small>
                 &copy; {{ date('Y') }} 
-                {{-- Panggil Dinamis --}}
                 {{ $settings['nama_masjid'] ?? 'Masjid Raya' }}. 
                 {{ $settings['footer_text'] ?? 'Semua konten dilindungi.' }}
             </small>

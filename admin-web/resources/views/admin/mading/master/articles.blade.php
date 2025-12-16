@@ -136,8 +136,6 @@
 <script>
     $(document).ready(function () {
         $('#tableArtikel').DataTable({
-            // Tidak perlu load JS/CSS lagi karena sudah di admin.blade.php
-            // Config Bahasa Manual (Anti Error CORS)
             language: {
                 "emptyTable": "Tidak ada data yang tersedia",
                 "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
