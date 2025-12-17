@@ -342,28 +342,33 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:8001';
-        const PUBLIC_URL = 'http://localhost:8000';
+        const API_URL = 'http://localhost:8001'; // Sesuaikan Port Backend Lumen
+        const PUBLIC_URL = 'http://localhost:8000'; // Sesuaikan Port Frontend Laravel
+        
         let appSettings = {}, prayerTimes = {}, slidersData = [], financeData = {};
         let sliderIndex = 0; let rotationTimer = null;
+        
         const formatRupiah = (n) => new Intl.NumberFormat('id-ID').format(n || 0);
         function safeText(id, t) { const el = document.getElementById(id); if(el) el.innerText = t || ''; }
-
+    
+        // --- JAM DIGITAL ---
         setInterval(() => { 
             const now = new Date(); 
             document.getElementById('clock').innerText = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); 
             document.getElementById('date-masehi').innerText = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); 
         }, 1000);
-
-        // Helper untuk membuang tag HTML dari summary artikel
+    
+        // --- HELPER STRIP HTML ---
         function stripHtml(html){
             let tmp = document.createElement("DIV");
             tmp.innerHTML = html;
             return tmp.textContent || tmp.innerText || "";
         }
-
+    
+        // --- FETCH DATA ---
         async function fetchAllData() {
             try {
+                // 1. Settings
                 const s = await fetch(`${API_URL}/v1/mading/master/settings`).then(r => r.json()); appSettings = s; 
                 safeText('masjid-name', s.nama_masjid); safeText('masjid-address', s.alamat); safeText('running-text', s.running_text);
                 if (s.qr_infaq_url) {
@@ -371,23 +376,30 @@
                     document.getElementById('qris-img').src = s.qr_infaq_url;
                     safeText('qris-bank', s.bank_info || '-');
                 } else { document.getElementById('ui-qris').style.display = 'none'; }
-
+    
+                // 2. Prayer Times
                 const p = await fetch(`${API_URL}/v1/mading/dash/prayers`).then(r => r.json()); prayerTimes = p; updatePrayerUI(p);
+                
+                // 3. Finance
                 const f = await fetch(`${API_URL}/v1/mading/trans/finances`).then(r => r.json()); financeData = f;
                 if(f) { safeText('fin-saldo', formatRupiah(f.saldo)); safeText('fin-masuk', formatRupiah(f.pemasukan_total)); safeText('fin-keluar', formatRupiah(f.pengeluaran_total)); }
                 
+                // 4. Sliders (Looping Logic)
                 const sl = await fetch(`${API_URL}/v1/mading/master/sliders`).then(r => r.json());
+                
                 if(JSON.stringify(sl) !== JSON.stringify(slidersData)) {
                     slidersData = sl;
                     if(!window.rotationStarted && slidersData.length > 0) { window.rotationStarted = true; runSliderRotation(); }
                 }
             } catch (e) { console.error("API Error", e); }
         }
-
+    
+        // --- LOGIKA JADWAL SHOLAT UI ---
         function updatePrayerUI(d) {
             safeText('date-hijri', d.date_hijri); safeText('time-terbit', d.Terbit); safeText('time-subuh', d.Subuh); safeText('time-dzuhur', d.Dzuhur); safeText('time-ashar', d.Ashar); safeText('time-maghrib', d.Maghrib); safeText('time-isya', d.Isya);
             highlightNextPrayer(d);
         }
+
         function highlightNextPrayer(t) {
             if(!t || !t.Subuh) return;
             const now = new Date(); const curr = now.getHours() * 60 + now.getMinutes();
@@ -405,7 +417,8 @@
             const el = document.getElementById(`box-${activeId}`);
             if(el) { el.classList.add('active'); const diff = toMin(t[activeId.charAt(0).toUpperCase() + activeId.slice(1)]) - curr; const elCd = document.getElementById(`cd-${activeId}`); if(diff > 0 && diff < 60) elCd.innerText = `-${diff} Menit`; }
         }
-
+    
+        // --- ENGINE ROTASI SLIDER UTAMA ---
         function runSliderRotation() {
             const bgImage = document.getElementById('bg-image');
             const bgVideo = document.getElementById('bg-video');
@@ -413,31 +426,34 @@
             // Overlays
             const ovFinance = document.getElementById('overlay-finance');
             const ovQuote = document.getElementById('overlay-quote');
-            const ovArticle = document.getElementById('overlay-article'); // NEW
+            const ovArticle = document.getElementById('overlay-article'); 
             
             const mainHeader = document.querySelector('.header-bar'); 
-
+    
             function nextSlide() {
                 if(rotationTimer) clearTimeout(rotationTimer);
                 
-                // Cek jika sedang mode Iqomah/Sholat, pause rotasi
+                // Cek Mode Iqomah/Sholat (Pause Rotasi)
                 if(document.getElementById('overlay-iqomah').style.display === 'flex' || document.getElementById('overlay-sholat').style.display === 'flex') {
                     if(bgVideo) bgVideo.pause(); 
                     rotationTimer = setTimeout(nextSlide, 5000); return;
                 }
                 
-                // Reset State Slide Sebelumnya
+                // Reset UI State
                 if(bgVideo) bgVideo.onended = null; 
                 ovFinance.style.display = 'none';
                 ovQuote.style.display = 'none';
-                ovArticle.style.display = 'none'; // Reset Artikel
+                ovArticle.style.display = 'none'; 
                 ovArticle.classList.remove('art-zoom');
                 
-                mainHeader.classList.remove('seamless-mode'); // Reset Header Normal
-
+                mainHeader.classList.remove('seamless-mode'); 
+    
                 if (sliderIndex < slidersData.length) {
                     const slide = slidersData[sliderIndex];
+                    let dbInterval = parseInt(slide.interval);
                     
+                    if (isNaN(dbInterval) || dbInterval < 1000) dbInterval = 10000; 
+    
                     // --- TIPE 1: INFAQ / QUOTE ---
                     if (slide.type === 'infaq') {
                         if(bgVideo) { bgVideo.pause(); bgVideo.classList.remove('media-active'); }
@@ -445,7 +461,7 @@
                         let imgUrl = '/default-slide.jpg';
                         if (slide.image_url && !slide.image_url.includes('USE_DEFAULT') && !slide.image_url.includes('null')) imgUrl = slide.image_url;
                         bgImage.src = imgUrl; bgImage.classList.add('media-active'); bgImage.style.filter = "brightness(0.6)"; 
-
+    
                         safeText('quote-title', slide.title || 'MARI BERINFAQ');
                         safeText('quote-text', '');
                         if(slide.extra_data) {
@@ -456,89 +472,85 @@
                         
                         ovQuote.style.display = 'flex';
                         mainHeader.classList.add('seamless-mode'); 
-
+    
                         sliderIndex++;
+
                         rotationTimer = setTimeout(() => { 
                             ovQuote.style.display = 'none'; 
                             mainHeader.classList.remove('seamless-mode'); 
                             bgImage.style.filter = "none"; 
                             nextSlide(); 
-                        }, 10000);
-
+                        }, dbInterval);
+    
                     } 
-                    // --- TIPE 2: ARTIKEL (BARU) ---
+                    // --- TIPE 2: ARTIKEL ---
                     else if (slide.type === 'article') {
                         if(bgVideo) { bgVideo.pause(); bgVideo.classList.remove('media-active'); }
-                         
-                        // 1. Setup Gambar Artikel
+                            
+                        // Setup Gambar & Konten (Code lama Anda)
                         const articleData = slide.article || {};
-
                         let artImgUrl = "";
-
-                        if (articleData.image_url) {
-                            artImgUrl = articleData.image_url; 
-                        } else if (articleData.image) {
-                            artImgUrl = `${API_URL}/storage/${articleData.image}`;
-                        } else {
-                            if (slide.image_url && !slide.image_url.includes('USE_DEFAULT')) {
-                                artImgUrl = slide.image_url;
-                            }
-                        }
-                         
+                        if (articleData.image_url) { artImgUrl = articleData.image_url; } 
+                        else if (articleData.image) { artImgUrl = `${API_URL}/storage/${articleData.image}`; } 
+                        else { if (slide.image_url && !slide.image_url.includes('USE_DEFAULT')) { artImgUrl = slide.image_url; } }
+                            
                         document.getElementById('art-img').src = artImgUrl || 'https://via.placeholder.com/800x600?text=No+Image';
-                        
-                        // 2. Setup Teks
                         safeText('art-title', articleData.title || slide.title);
                         
                         let summary = stripHtml(articleData.content || "");
                         if(summary.length > 250) summary = summary.substring(0, 250) + "...";
                         safeText('art-summary', summary);
-
-                        // 3. Generate QR Code
-                         
+    
+                        // QR Code
                         const qrContainer = document.getElementById("art-qr");
-                        qrContainer.innerHTML = ""; // Bersihkan QR lama
-
+                        qrContainer.innerHTML = ""; 
                         if(articleData.slug) {
-                            // Generate QR
                             new QRCode(qrContainer, {
                                 text: `${PUBLIC_URL}/${articleData.slug}`,
-                                width: 150,  
-                                height: 150,
-                                colorDark : "#000000", 
-                                colorLight : "#ffffff",
+                                width: 150, height: 150, colorDark : "#000000", colorLight : "#ffffff",
                                 correctLevel : QRCode.CorrectLevel.M 
                             });
                         }
-
-                         // 4. Tampilkan Overlay
-                         ovArticle.style.display = 'block';
-                         
-                         setTimeout(() => ovArticle.classList.add('art-zoom'), 100);
-                         
-                         mainHeader.classList.add('seamless-mode'); 
-
-                         sliderIndex++;
-                         rotationTimer = setTimeout(() => {
-                             ovArticle.style.display = 'none';
-                             mainHeader.classList.remove('seamless-mode');
-                             nextSlide();
-                         }, 20000);
+    
+                        ovArticle.style.display = 'block';
+                        setTimeout(() => ovArticle.classList.add('art-zoom'), 100);
+                        mainHeader.classList.add('seamless-mode'); 
+    
+                        sliderIndex++;
+                        
+                        let articleTime = dbInterval < 15000 ? 15000 : dbInterval;
+    
+                        rotationTimer = setTimeout(() => {
+                            ovArticle.style.display = 'none';
+                            mainHeader.classList.remove('seamless-mode');
+                            nextSlide();
+                        }, articleTime);
                     }
                     // --- TIPE 3: VIDEO ---
                     else if (slide.type === 'video') {
                         bgImage.classList.remove('media-active');
-                        bgVideo.src = slide.image_url; bgVideo.classList.add('media-active'); bgVideo.play().catch(e=>{});
+                        bgVideo.src = slide.image_url; 
+                        bgVideo.classList.add('media-active'); 
+                        bgVideo.play().catch(e=>{});
+                        
                         bgVideo.onended = function() { sliderIndex++; nextSlide(); };
                     } 
                     // --- TIPE 4: GAMBAR BIASA ---
                     else {
                         if(bgVideo) { bgVideo.pause(); bgVideo.classList.remove('media-active'); }
-                        bgImage.src = slide.image_url; bgImage.classList.add('media-active'); bgImage.style.filter = "none";
-                        sliderIndex++; rotationTimer = setTimeout(nextSlide, 10000);
+                        bgImage.src = slide.image_url; 
+                        bgImage.classList.add('media-active'); 
+                        bgImage.style.filter = "none";
+                        
+                        sliderIndex++; 
+                        
+                        rotationTimer = setTimeout(nextSlide, dbInterval);
                     }
                 } else {
+                    // --- SLIDER HABIS / RESET ---
                     if(bgVideo) { bgVideo.pause(); bgVideo.classList.remove('media-active'); }
+                    
+                    // Tampilkan Laporan Keuangan sejenak sebelum ulang loop
                     if(financeData && financeData.saldo) {
                         ovFinance.style.display = 'flex';
                         mainHeader.classList.add('seamless-mode');
@@ -553,7 +565,8 @@
             }
             nextSlide();
         }
-
+    
+        // --- CHECK JADWAL SHOLAT/IQOMAH ---
         function checkPrayerStatus() {
             if (!prayerTimes.Subuh || !appSettings.iqomah_minutes) return;
             const now = new Date(); const curr = now.getHours() * 60 + now.getMinutes(); const sec = now.getSeconds();
@@ -576,8 +589,11 @@
             } else if (mode === 'sholat') { elIqomah.style.display = 'none'; elSholat.style.display = 'flex'; } 
             else { elIqomah.style.display = 'none'; elSholat.style.display = 'none'; }
         }
-
-        fetchAllData(); setInterval(fetchAllData, 60000); setInterval(checkPrayerStatus, 1000);
+    
+        // --- INISIALISASI ---
+        fetchAllData(); 
+        setInterval(fetchAllData, 60000); 
+        setInterval(checkPrayerStatus, 1000);
     </script>
 </body>
 </html>

@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Slider;
 use Illuminate\Support\Facades\Storage;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\BadResponseException;
 
 class SliderController extends Controller
 {
@@ -59,6 +61,74 @@ class SliderController extends Controller
         } else {
             $msg = $response->json()['message'] ?? 'Gagal menghapus slider.';
             return back()->with('error', $msg);
+        }
+    }
+
+    public function show($id){
+        try{        
+            $client = new Client();
+            $response = $client->request('GET',  env('API_MADING_URL') . '/master/sliders/' . $id);
+
+            if ($response->getStatusCode() == 200) { // 200 OK
+                $response_data = $response->getBody()->getContents();
+                $data = json_decode($response_data,true);
+            }
+            return response()->json($data, 200);
+
+        } catch (BadResponseException $ex) {
+            $response = $ex->getResponse();
+            $res = json_decode($response->getBody(),true);
+            return response()->json(['message' => $res["message"], 'status'=>false], 200);
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            $client = new Client();
+            $multipart = [];
+
+            $multipart[] = [
+                'name'     => '_method',
+                'contents' => 'PUT'
+            ];
+
+            foreach ($request->except(['image', '_token', '_method']) as $key => $value) {
+                $multipart[] = [
+                    'name'     => $key,
+                    'contents' => $value
+                ];
+            }
+
+            if ($request->hasFile('image')) {
+                $file = $request->file('image');
+                $multipart[] = [
+                    'name'     => 'image',
+                    'contents' => fopen($file->getPathname(), 'r'),
+                    'filename' => $file->getClientOriginalName()
+                ];
+            }
+
+            $response = $client->request('POST', env('API_MADING_URL') . '/master/sliders/' . $id, [
+                'multipart' => $multipart
+            ]);
+
+            if ($response->getStatusCode() == 200) { 
+                $response_data = $response->getBody()->getContents();
+                $data = json_decode($response_data, true);
+                
+                return response()->json($data, 200);
+            }
+
+        } catch (BadResponseException $ex) {
+            $response = $ex->getResponse();
+            $res = json_decode($response->getBody(), true);
+            
+            return response()->json([
+                'message' => $res["message"] ?? 'Terjadi kesalahan pada server', 
+                'status'  => false,
+                'errors'  => $res["errors"] ?? null
+            ], $response->getStatusCode());
         }
     }
 }

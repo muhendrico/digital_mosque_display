@@ -11,9 +11,12 @@ class Slider extends Model
     protected $fillable = [
         'title', 
         'image_path', 
-        'type', 'extra_data', 
-        'order', 'is_active',
-        'article_id'
+        'type', 
+        'extra_data', 
+        'order', 
+        'is_active',
+        'article_id',
+        'interval',
     ];
 
     protected $casts = [
@@ -35,6 +38,12 @@ class Slider extends Model
         // 1. Jika tipe Infaq (tidak ada gambar, cuma quote), return null/default
         if ($this->type == 'infaq' && empty($this->image_path)) {
             return null; // Atau URL gambar background default
+        }
+
+        if ($this->image_path === 'USE_DEFAULT_IMAGE' || $this->image_path === 'default') {
+            $baseUrl = rtrim(env('APP_URL'), '/');
+            
+            return $baseUrl . '/storage/' . 'default-slide.jpg'; 
         }
 
         // 2. Jika ada path gambar
